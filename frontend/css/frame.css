@@ -1,0 +1,14 @@
+body .layer-unvisiable {
+	background: none;
+	box-shadow: none;
+}
+
+.full {
+	background-color: #dc3545!important;
+	color: white;
+}
+
+#mainChart {
+	height: 500px;
+	width: 100%;
+}
