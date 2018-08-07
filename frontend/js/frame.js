@@ -13,6 +13,12 @@ $(function() {
 		// 根据locationURL 初始化页面
 		initPage()
 
+//		// 开始任务
+//		$("#open_task").click(function() {
+//			COMJS.confirm('您确认要结束任务吗? 结束前请确保有任务在执行', function() {
+//				sendCommand(END_TASK)
+//			})
+//		})
 //		// 结束任务
 //		$("#end_task").click(function() {
 //			COMJS.confirm('您确认要结束任务吗? 结束前请确保有任务在执行', function() {
@@ -115,31 +121,44 @@ $(function() {
 
         // 初始化echarts实例
         var myChart = echarts.init(document.getElementById('mainChart'));
-
-        // 指定图表的配置项和数据
-        var option = {
-            title: {
-                text: 'ECharts test'
-            },
-            tooltip: {},
-            legend: {
-                data:['销量']
-            },
-            xAxis: {
-                data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
-            },
-            yAxis: {},
-            series: [{
-                name: '销量',
-                type: 'bar',
-                data: [5, 20, 36, 10, 10, 20]
-            }]
-        };
-
         // 使用刚指定的配置项和数据显示图表。
-        myChart.setOption(option);
+        myChart.setOption(chartOptions(0,0,0));
+				
+				function getAngle(x1, y1,  x2, y2){
+					var x = Math.abs(x1 - x2);
+					var y = Math.abs(y1 - y2);
+					var z = Math.sqrt(x*x + y*y);
+					return  Math.round((Math.asin(y / z) / Math.PI*180));
+			 }
 
+				var target_start = [20, 40]
+				var target_end = [10, 40] 
+				function mockAnimate(){
+					var currentLocation = mockAnimate.location || [0,0]
+					var x = currentLocation[0]+1
+					var y = currentLocation[1]+1
+					if(x>target_start[0]){
+						x=target_start[0]
+					}
+					if(y>target_start[1]){
+						y=target_start[1]
+					}
+					
+				
+					if(x<target_start[0]||y<target_start[1]){
+						console.warn(getAngle(x,y,currentLocation[0],currentLocation[0]))
+						myChart.setOption(chartOptions(x,y,0));
+						mockAnimate.location=[x,y]
+						setTimeout(mockAnimate,800)
+					}
+					myChart.setOption(chartOptions(x,y,0));
+
+				}
+				mockAnimate()
 		}
+
+
+
 
 	});
 
