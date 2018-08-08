@@ -26,4 +26,17 @@ body .layer-unvisiable {
 	padding-bottom: 20px;
 }
 
+.docker {
+	/*position: absolute;
+	top: 100px;
+	right: 0;*/
+	text-align: center;
+	width: 340px;
+	height: 500px;
+}
+
+.docker span {
+	font-weight: bold;
+	color: darkblue;
+}
 
