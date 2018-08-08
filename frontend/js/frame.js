@@ -13,6 +13,12 @@ $(function() {
 		// 根据locationURL 初始化页面
 		initPage()
 
+		$('#startPlace').on('change',function(){
+			console.warn(this.value)
+		})
+		$('#endPlace').on('change',function(){
+			console.warn(this.value)
+		})
 //		// 开始任务
 //		$("#open_task").click(function() {
 //			COMJS.confirm('您确认要结束任务吗? 结束前请确保有任务在执行', function() {
@@ -146,7 +152,6 @@ $(function() {
 					
 				
 					if(x<target_start[0]||y<target_start[1]){
-						console.warn(getAngle(x,y,currentLocation[0],currentLocation[0]))
 						myChart.setOption(chartOptions(x,y,0));
 						mockAnimate.location=[x,y]
 						setTimeout(mockAnimate,800)
