@@ -15,7 +15,7 @@ body .layer-unvisiable {
 	height:100vh;
 }
 .menu-wrap{
-	width:260px;
+	width:300px;
 }
 
 .show-layout{
@@ -27,16 +27,16 @@ body .layer-unvisiable {
 }
 
 .docker {
-	/*position: absolute;
-	top: 100px;
-	right: 0;*/
 	text-align: center;
-	width: 340px;
-	height: 500px;
+	height:100%;
 }
 
 .docker span {
 	font-weight: bold;
 	color: darkblue;
+}
+
+.mb-15{
+	margin-bottom: 15px
 }
 

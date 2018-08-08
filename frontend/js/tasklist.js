@@ -8,7 +8,6 @@ layui.define(['jquery', 'table'], function(exports) {
 		init: function() {
 			table.render({
 				elem: '#tasklist',
-				height: '500',
 				url: COMJS.CTX_PATH + "/task/list",
 				cols: [
 					[{

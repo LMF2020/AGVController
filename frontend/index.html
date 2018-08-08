@@ -21,33 +21,28 @@
 				<div class="row h-100">
 					<!-- 左边显示图表-->
 					<div class="col chart-wrap padding">
-							<div id="mainChart" class='w-100 h-100'></div>
+						<div id="mainChart" class='w-100 h-100'></div>
 					</div>
 					<!-- 右边显示操作-->
-					<div class="menu-wrap padding">
+					<div class="menu-wrap padding ">
 						<div class="container-fluid">
-							<div class="row">
-								<div class="col">
-									<form>
-										<div class="form-group">
-											<label for="exampleInputEmail1">始发位置</label>
-											<select class="form-control form-control-sm" id="startPlace" placeholder="始发位置">
-												<option value="A">A</option>
-												<option value="B">B</option>
-												<option value="C">C</option>
-												<option value="D">D</option>
-											</select>
+							<div class="row flex-column">
+								<div class='col-12 mb-15'>
+									<div class="row mb-15">
+										<div class="col-6">
+											<button type="button" id='end_task' class="btn btn-sm btn-block btn-outline-danger">暂停</button>
 										</div>
-										<div class="form-group">
-											<label for="exampleInputEmail1">结束位置</label>
-											<select class="form-control form-control-sm" id="endPlace" placeholder="结束位置">
-												<option value="A">A</option>
-												<option value="B">B</option>
-												<option value="C">C</option>
-												<option value="D">D</option>
-											</select>
+										<div class="col-6">
+											<button type="button" id='rec_task' class="btn btn-sm btn-block btn-outline-info">继续</button>
 										</div>
-										<div class="form-group form-row">
+									</div>
+									<div class="row">
+										<div class="col-12">
+											<button type="button" id='open_task' class="btn btn-sm btn-block btn-outline-primary">开始</button>
+										</div>
+									</div>
+									<!-- <form class='w-100'>
+										<div class="w-100 form-group form-row">
 											<div class="col-6">
 												<button type="button" id='open_task' class="btn btn-sm btn-block btn-outline-primary">开始</button>
 											</div>
@@ -55,19 +50,20 @@
 												<button type="button" id='rec_task' class="btn btn-sm btn-block btn-outline-info">继续</button>
 											</div>
 										</div>
-										<div class="form-group form-row">
-											<div class="col">
+										<div class="w-100 form-group form-row">
+											<div class="col-12">
 												<button type="button" id='end_task' class="btn btn-sm btn-block btn-outline-danger">暂停</button>
 											</div>
 										</div>
-									</form>
+									</form> -->
 								</div>
-								<div class="col">
-									<div class="docker">
-										<span>任务列表</span>
-										<table id="tasklist" lay-filter="tasklist"></table>
-									</div>
+								<div class="col-12 ">
+										<div class="docker w-100">
+												<span>任务列表</span>
+												<table id="tasklist" lay-filter="tasklist"></table>
+											</div>
 								</div>
+							
 
 							</div>
 						</div>
@@ -80,7 +76,7 @@
 	</div>
 
 	<script type="text/html" id="taskbar">
-		<i class="layui-icon" lay-event="del" style="font-size: 25px; color: #1E9FFF;">&#x1006;</i>  
+		<i class="layui-icon" lay-event="del" style="font-size: 25px; color: #1E9FFF;">&#x1006;</i>
 	</script>
 
 	<script src="lib/jquery.min.js"></script>
