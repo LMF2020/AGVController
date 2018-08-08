@@ -25,12 +25,6 @@ layui.use(['layer', 'tasklist'], function() {
 	
 	initPage()
 
-	$('#startPlace').on('change',function(){
-		console.warn(this.value)
-	})
-	$('#endPlace').on('change',function(){
-		console.warn(this.value)
-	})
 //		// 开始任务
 //		$("#open_task").click(function() {
 //			COMJS.confirm('您确认要结束任务吗? 结束前请确保有任务在执行', function() {

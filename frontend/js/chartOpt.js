@@ -10,15 +10,16 @@ var chartOptions = function(x,y,deg){
     yAxis: {
       show: false
     },
+    legend:{},
     series: {
       label: {
-        show: true,
+        show: false,
         formatter: '{b}'
       },
       // itemStyle: {
       //   borderWidth: 10
       // },
-      symbol: 'rect',
+      // symbol: 'rect',
       // symbolSize: [80, 100],
       data: chartData
 
