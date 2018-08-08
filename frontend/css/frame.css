@@ -1,3 +1,6 @@
+*{
+	/* color:transparent !important */
+}
 body .layer-unvisiable {
 	background: none;
 	box-shadow: none;
@@ -7,8 +10,20 @@ body .layer-unvisiable {
 	background-color: #dc3545!important;
 	color: white;
 }
-
-#mainChart {
-	height: 500px;
-	width: 100%;
+.content-wrap{
+	width: 100vw;
+	height:100vh;
 }
+.menu-wrap{
+	width:260px;
+}
+
+.show-layout{
+	border:1px solid #f00
+}
+.padding{
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+
