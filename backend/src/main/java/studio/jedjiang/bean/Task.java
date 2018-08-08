@@ -10,7 +10,6 @@ import org.nutz.dao.entity.annotation.Prev;
 import org.nutz.dao.entity.annotation.Table;
 
 import lombok.Data;
-import studio.jedjiang.client.AGVClient;
 
 /**
  * 待办任务列表
@@ -23,6 +22,10 @@ import studio.jedjiang.client.AGVClient;
 public class Task extends BaseModel {
 	
 	private static final long serialVersionUID = 1L;
+	
+	public static final int TASK_TODO = 0;
+	public static final int TASK_IN_PROCESS = 1;
+	public static final int TASK_FINISHED = 2;
 	
 	@Name
 	@Comment("任务ID")
@@ -38,7 +41,7 @@ public class Task extends BaseModel {
 	@Column
 	@Comment("任务状态：待办(0)or进行中(1)or已完成(2)")
 	@ColDefine(type = ColType.INT)
-	private Integer status = AGVClient.TASK_TODO;
+	private Integer status = TASK_TODO;
 	
 	@Column
 	@Comment("任务顺序")

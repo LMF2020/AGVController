@@ -2,10 +2,12 @@ package studio.jedjiang.client;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.util.Date;
 
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.mvc.Mvcs;
 import org.tio.client.intf.ClientAioHandler;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
@@ -17,6 +19,8 @@ import org.tio.utils.json.Json;
 import org.tio.websocket.common.WsResponse;
 
 import studio.jedjiang.bean.AGVStatus;
+import studio.jedjiang.bean.Task;
+import studio.jedjiang.service.TaskService;
 
 @IocBean
 public class MessageClientAioHandler implements ClientAioHandler {
@@ -26,6 +30,9 @@ public class MessageClientAioHandler implements ClientAioHandler {
 
 	// 配置websocket服务
 	private ServerGroupContext wsGroupCtx;
+	
+	private static TaskService taskService = Mvcs.ctx().getDefaultIoc().get(TaskService.class);
+	private static MessageClient messageClient = Mvcs.ctx().getDefaultIoc().get(MessageClient.class);
 
 	/**
 	 * 接收端解码: 字节转换成可发送的消息
@@ -81,12 +88,43 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			// 更新缓存
 			AGVStatus taskStatus = AGVClient.updateAGVStatus(agvResponse);
 			log.info("收到服务器消息：" + agvResponse);
+
+			// 如果任务结束
+			if (taskStatus.isFinished()) {
+
+				synchronized (this) {
+					// 试图取进行中的任务
+					Task task = taskService.getOngoingTask();
+					if (task != null) {
+						long now = new Date().getTime();
+						// 如果上一条数据更新时间还没到10秒就又过来一条完成的任务的话, 这条任务极有可能是仍旧是上条完成的任务！
+						if (now - task.getOpAt() < 10 * 1000) {
+							// 返回不做处理
+							return;
+						}
+						// 否则更新任务状态为完成
+						task.setStatus(Task.TASK_FINISHED);
+						taskService.update(task);
+					}
+
+					// 试图取一条新任务发送
+					task = taskService.findNext();
+					if (task != null) {
+						messageClient.send(task.getName());
+						// 更新任务状态为：执行中
+						task.setStatus(Task.TASK_IN_PROCESS);
+						taskService.update(task);
+					}
+				}
+
+			}
+
 			// 推送给浏览器
 			messagePush(taskStatus);
 		}
 		return;
 	}
-
+	
 	/**
 	 * 如果返回null，框架层面则不会发心跳；如果返回非null，框架层面会定时发本方法返回的消息包
 	 */

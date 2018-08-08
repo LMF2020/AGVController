@@ -1,12 +1,8 @@
 package studio.jedjiang.client;
 
-import java.util.Map;
-
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-
-import com.google.common.collect.Maps;
 
 import studio.jedjiang.bean.AGVStatus;
 
@@ -20,15 +16,8 @@ public class AGVClient {
 	public static final String REC_CMD_PATTERN = "cmd=pause;pauseStat=0";
 	public static final String DEFAULT_DB_TASK_ID = "WCNMWCNMdde94b0e9e87f376efd80c30";
 
-	public static final int TASK_TODO = 0;
-	public static final int TASK_IN_PROCESS = 1;
-	public static final int TASK_FINISHED = 2;
-
 	// 缓存任务列表(后期采用LRU模型, 如果是多任务需要引入memcached)
 	public static AGVStatusCacheClient agvCacheClient = AGVStatusCacheClient.getInstance();
-	public static Map<String, String> taskIdMap = Maps.newConcurrentMap();
-
-	// private static MessageClient messageClient = Mvcs.ctx().getDefaultIoc().get(MessageClient.class);
 
 	/**
 	 * 检测心跳超时时间
@@ -61,9 +50,9 @@ public class AGVClient {
 	}
 	
 	/**
-	 * 解析报文并推送给浏览器
+	 * 解析返回报文
 	 * 
-	 * @param agvResponse 服务器返回报文
+	 * @param agvResponse 服务器返回的报文
 	 * @return
 	 */
 	public static AGVStatus updateAGVStatus(String agvResponse) {
