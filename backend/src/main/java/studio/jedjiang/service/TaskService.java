@@ -15,6 +15,9 @@ public interface TaskService {
 
 	// 添加任务
 	void add(String taskName) throws Exception;
+	
+	// 根据指定状态添加任务
+	void addByStatus(String taskName, int status) throws Exception;
 
 	// 更新任务
 	void update(Task task) throws Exception;
@@ -22,8 +25,11 @@ public interface TaskService {
 	// 查询进行中的任务
 	Task getOngoingTask() throws Exception;
 	
+	// 查找最新完成的任务
+	Task getLatestFinished() throws Exception;
+	
 	// 更新进行中的任务为完成状态
-	void updateOngoingAsFinished();
+	void updateOngoingAsFinished() throws Exception;
 
 	// 移除任务
 	void delete(List<String> taskIds) throws Exception;

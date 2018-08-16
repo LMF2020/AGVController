@@ -20,7 +20,6 @@ import org.nutz.mvc.filter.CrossOriginFilter;
 
 import com.google.common.collect.Lists;
 
-import studio.jedjiang.bean.AGVStatus;
 import studio.jedjiang.bean.Result;
 import studio.jedjiang.bean.Task;
 import studio.jedjiang.client.AGVClient;
@@ -65,8 +64,8 @@ public class MainLauncher {
 			// 启动websocket服务
 			appStarter = new WsMsgStarter(Integer.parseInt(conf.get("io.ws.port")), new WsMsgHandler());
 			appStarter.start();
-			// 配置websocket服务
-			messageClient.setWebsocketGroupCtx(appStarter.getServerGroupContext());
+			// 配置websocket服务|任务服务
+			messageClient.initService(appStarter.getServerGroupContext(), taskService);
 			// 连接服务器
 			messageClient.connect();
 
@@ -134,22 +133,79 @@ public class MainLauncher {
 
 	// 添加任务并检查是否需要发送任务
 	@Filters(@By(type = CrossOriginFilter.class))
-	@At("/task/add/?")
-	@Ok("json")
-	public Result addTask(String taskName) {
+	@At("/task/add/?/?")
+	@Ok("json") // site - 站点(1-5), type - 返仓,转子,定子
+	public Result addTask(String site, String type) {
 		try {
-			// 添加任务
-			taskService.add(taskName);
-			// 当前没有任务或者任务已完成就从数据库找一个任务发送
-			AGVStatus agvStatus = AGVClient.agvCacheClient.get(AGVClient.ONE_AVG_ID);
-			if(agvStatus == null || agvStatus.isFinished()){
-				Task task = taskService.findNext();
-				if(task != null){
-					messageClient.send(task.getName());
-					// 更新任务状态为：执行中
-					task.setStatus(Task.TASK_IN_PROCESS);
-					taskService.update(task);
+			
+			// 逻辑： 1.优先查找待办任务
+				//  2. 若找不到，查找进行中的任务，
+				//  3. 若找不到，查最新完成的任务
+				//  4. 再找不到认为车子就在待命区(1)
+				//  5. 新增任务
+				//  6. 取任务并发送
+				//  7. 更新任务状态
+			
+			// 获取前缀 D/Z/F
+			String prefix = AGVClient.getPrefixByType(type);
+			String fromSite = "";
+			String targetSite = site + type;
+			boolean find = false;
+			// 1. 查找前一个待办任务
+			Task lastTask = taskService.findNext();
+			if(lastTask != null){
+				String lastTaskName = lastTask.getName();
+				// 后两位就是起始站点
+				fromSite = lastTaskName.substring(lastTaskName.length() - 2);
+				log.infof("前一个待办任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
+				find = true;
+			}
+			
+			// 2. 查找是否有执行中的任务
+			if(!find){
+				lastTask = taskService.getOngoingTask();
+				if(lastTask!=null){
+					String lastTaskName = lastTask.getName();
+					// 后两位就是起始站点
+					fromSite = lastTaskName.substring(lastTaskName.length() - 2);
+					log.infof("有执行中任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
+					find = true;
 				}
+			}
+			
+			// 3. 查找前一个最新完成的任务
+			if(!find){
+				lastTask = taskService.getLatestFinished();
+				if(lastTask!=null){
+					String lastTaskName = lastTask.getName();
+					// 后两位就是起始站点
+					fromSite = lastTaskName.substring(lastTaskName.length() - 2);
+					log.infof("前一个完成的任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
+					find = true;
+				}
+			}
+			// 3. 此时认为车子在待命区(1)
+			if(!find){
+				log.info("找不到任务，算出起始站点：00");
+				fromSite = "00";
+			}
+			// 推算出任务名
+			String _thisTask = prefix + fromSite + targetSite;
+			// 添加任务 (到数据库)
+			taskService.add(_thisTask);
+			log.infof("任务:%s, 已添加入库", _thisTask);
+
+			// 检查数据库是否有执行中的任务
+			Task ongoingTask = taskService.getOngoingTask();
+			// 如果没有执行中的任务，则发送待办任务
+			if(ongoingTask == null){
+				Task nextTask = taskService.findNext();
+				// 因为此方法就是添加待办任务，所以数据库必然有一个待办任务，而且就是 _thisTask = (nextTask)
+				messageClient.send(nextTask.getName());
+				// 更新任务状态为，执行中
+				nextTask.setStatus(Task.TASK_IN_PROCESS);
+				taskService.update(nextTask);
+				log.infof("没有执行中的任务, 发送任务：%s", nextTask.getName());
 			}
 
 			return Result.success();

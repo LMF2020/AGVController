@@ -41,7 +41,7 @@
           <archive>
             <manifest>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-              <mainClass>com.hision.erp.MainLauncher</mainClass>
+              <mainClass>studio.jedjiang.MainLauncher</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -62,7 +62,7 @@
                   <resource>META-INF/nutz/org.nutz.boot.starter.NbStarter</resource>
                 </transformer>
                 <transformer>
-                  <mainClass>com.hision.erp.MainLauncher</mainClass>
+                  <mainClass>studio.jedjiang.MainLauncher</mainClass>
                 </transformer>
               </transformers>
             </configuration>

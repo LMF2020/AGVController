@@ -18,6 +18,7 @@ import org.tio.server.ServerGroupContext;
 
 import studio.jedjiang.bean.AGVStatus;
 import studio.jedjiang.bean.Result;
+import studio.jedjiang.service.TaskService;
 
 
 /**
@@ -52,7 +53,6 @@ public class MessageClient {
 
 	/**
 	 * 连接服务器
-	 * 
 	 * @throws Exception
 	 */
 	public void connect() throws Exception {
@@ -69,8 +69,11 @@ public class MessageClient {
 	 * 配置websocket服务
 	 * @param wsGroupCtx
 	 */
-	public void setWebsocketGroupCtx(ServerGroupContext wsGroupCtx) {
+	public void initService(ServerGroupContext wsGroupCtx, TaskService taskService) {
 		messageClientAioHandler.setWsGroupCtx(wsGroupCtx);
+		messageClientAioHandler.setMessageClient(this);
+		messageClientAioHandler.setTaskService(taskService);
+		
 	}
 
 	/**
@@ -148,7 +151,7 @@ public class MessageClient {
 			return Result.error("任务发送失败，失败原因：" + e.getMessage());
 		}
 		Tio.send(clientChannelContext, packet);
-		log.info("正在发送命令：任务发送成功：" + message);
+		log.info("任务发送成功：" + message);
 
 		// TODO: 这里有一个bug： 用户发送第一个调度命令的之后，状态还没来及上报就接着触发下一个调度命令，这时候我不知道该如何阻止用户连续发送
 

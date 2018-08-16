@@ -106,24 +106,18 @@ public class TaskServiceImpl implements TaskService {
 	 */
 	@Override
 	public void add(String taskName) throws Exception {
-		// 如果库表已经存在 A% 并且状态未完成的,不允许添加新任务
-//		List<Task> startAList = dao.query(Task.class,
-//				Cnd.where("name", "like", "A%").or("name", "like", "Z%").and("status", "!=", 2));
-//		if (!startAList.isEmpty()) {
-//			throw new Exception("起始点开始的任务在任务队列里有唯一性限制");
-//		}
-		List<Task> todoTaskList = dao.query(Task.class, Cnd.orderBy().desc("ordering"));
+		List<Task> taskList = dao.query(Task.class, Cnd.orderBy().desc("ordering"));
 		Task task = new Task();
 		task.setStatus(Task.TASK_TODO);
 		task.setName(taskName);
-		if (todoTaskList.size() != 0) {
-			Task lastTask = todoTaskList.get(0);
+		if (taskList.size() != 0) {
+			Task lastTask = taskList.get(0);
 			// 如果任务列表有任务, 新增的任务序号要加一
 			task.setOrdering(lastTask.getOrdering() + 1);
 		}
-		// 如果任务列表没有任务, 新增的任务序号为默认值500000
+		// 如果任务列表没有任务, 新增的任务序号为默认值200000
 		dao.insert(task);
-		LG.info("任务:(" + taskName + ")已被添加.");
+		LG.infof("新增任务:(%s).", taskName);
 	}
 
 	/**
@@ -159,15 +153,51 @@ public class TaskServiceImpl implements TaskService {
 		}
 	}
 
+	/**
+	 * 获取进行中的任务
+	 */
 	@Override
 	public Task getOngoingTask() throws Exception {
 		return dao.fetch(Task.class, Cnd.where("status", "=", Task.TASK_IN_PROCESS));
-		
 	}
 
+	/**
+	 * 更新进行中的任务为完成
+	 */
 	@Override
-	public void updateOngoingAsFinished() {
+	public void updateOngoingAsFinished() throws Exception{
 		dao.update(Task.class, Chain.make("status",Task.TASK_FINISHED), Cnd.where("status", "=", Task.TASK_IN_PROCESS));
+	}
+
+	/**
+	 * 获取最新完成的任务
+	 */
+	@Override
+	public Task getLatestFinished() throws Exception {
+		List<Task> doneTaskList = dao.query(Task.class, Cnd.where("status", "=", Task.TASK_FINISHED).orderBy("ordering", "asc"));
+		if (doneTaskList.size() != 0) {
+			return doneTaskList.get(0);
+		}
+		return null;
+	}
+
+	/**
+	 * 根据指定状态，添加任务
+	 */
+	@Override
+	public void addByStatus(String taskName, int status) throws Exception {
+		List<Task> taskList = dao.query(Task.class, Cnd.orderBy().desc("ordering"));
+		Task task = new Task();
+		task.setStatus(status);
+		task.setName(taskName);
+		if (taskList.size() != 0) {
+			Task lastTask = taskList.get(0);
+			// 如果任务列表有任务, 新增的任务序号要加一
+			task.setOrdering(lastTask.getOrdering() + 1);
+		}
+		// 如果任务列表没有任务, 新增的任务序号为默认值200000
+		dao.insert(task);
+		LG.infof("新增任务:(%s),状态:(%d)", taskName, status);
 		
 	}
 
