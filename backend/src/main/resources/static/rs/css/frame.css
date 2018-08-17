@@ -1,0 +1,42 @@
+*{
+	/* color:transparent !important */
+}
+body .layer-unvisiable {
+	background: none;
+	box-shadow: none;
+}
+
+.full {
+	background-color: #dc3545!important;
+	color: white;
+}
+.content-wrap{
+	width: 100vw;
+	height:100vh;
+}
+.menu-wrap{
+	width:300px;
+}
+
+.show-layout{
+	border:1px solid #f00
+}
+.padding{
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.docker {
+	text-align: center;
+	height:100%;
+}
+
+.docker span {
+	font-weight: bold;
+	color: darkblue;
+}
+
+.mb-15{
+	margin-bottom: 15px
+}
+
