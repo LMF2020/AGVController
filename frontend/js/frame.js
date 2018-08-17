@@ -151,15 +151,15 @@ layui.use(['layer', 'tasklist'], function() {
 		// 使用刚指定的配置项和数据显示图表。
 		myChart.setOption(chartOptions(-40100, -7330, 0));
 
-		function getAngle(x1, y1, x2, y2) {
-			var x = Math.abs(x1 - x2);
-			var y = Math.abs(y1 - y2);
-			var z = Math.sqrt(x * x + y * y);
-			return Math.round((Math.asin(y / z) / Math.PI * 180));
-		}
-
-		var target_start = [20, 40]
-		var target_end = [10, 40]
+//		function getAngle(x1, y1, x2, y2) {
+//			var x = Math.abs(x1 - x2);
+//			var y = Math.abs(y1 - y2);
+//			var z = Math.sqrt(x * x + y * y);
+//			return Math.round((Math.asin(y / z) / Math.PI * 180));
+//		}
+//
+//		var target_start = [20, 40]
+//		var target_end = [10, 40]
 
 //		function mockAnimate() {
 //			var currentLocation = mockAnimate.location || [0, 0]
