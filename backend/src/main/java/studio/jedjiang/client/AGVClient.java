@@ -24,6 +24,7 @@ public class AGVClient {
 	public static final String DZ_NUM = "1";
 	public static final String ZZ_NUM = "2";
 	public static final String FC_NUM = "0";
+	public static final String CHARGE_NUM = "71";
 	
 	// 定子，转子，返仓
 	public static final String DZ_FLAG = "D";
@@ -99,10 +100,14 @@ public class AGVClient {
 	// for example : Z3221
 	public static String getCmdFromSiteToStartSite(String fromSite){
 		StringBuilder cmd = new StringBuilder();
-		// 定子转子回待命区 SXX00, 返仓回待命区 S6070
+		// 定子转子回待命区 SXX00, 返仓回待命区 S6070, 充电回待命区S7170
 		fromSite = fromSite.replace(".xml", "").trim();
 		// 截取后两位 :21
 		String target = fromSite.substring(fromSite.length() - 2);
+		// 充电返仓
+		if(target.equals(CHARGE_NUM)){
+			return "S7170";
+		}
 		// 截取后一位:1
 		String type = target.substring(target.length() - 1);
 		// 如果是定子，转子
@@ -113,6 +118,14 @@ public class AGVClient {
 			cmd.append("S6070");
 		}
 		return cmd.toString();
+	}
+	
+	/**
+	 * 获取当前站点到充电站的任务
+	 */
+	public static String getFromSiteToChargeSite(String fromSite){
+		fromSite = fromSite.replace(".xml", "").trim().substring(fromSite.length() -2);
+		return "O" + fromSite + "71";
 	}
 	
 	/**
@@ -148,7 +161,7 @@ public class AGVClient {
 	
 	public static void main(String[] args) {
 		String word = "Sty679";
-		System.out.println(word.substring(word.length() - 1));
+		System.out.println(word.substring(2));
 	}
 
 }

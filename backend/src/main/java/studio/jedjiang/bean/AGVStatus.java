@@ -15,7 +15,7 @@ public class AGVStatus {
 	private String avgCode;
 	private String cmd;
 	private String taskName;
-	private String battery;
+	private int battery;
 	private boolean isFinished;
 	private String error;
 
@@ -40,7 +40,12 @@ public class AGVStatus {
 			} else if (pair_k.equals("task")) {
 				me.setTaskName(pair_v);
 			} else if (pair_k.equals("battery")) {
-				me.setBattery(pair_v);
+				int powerleft = 100;
+				if(pair_v.contains("%")){
+					pair_v = pair_v.replace("%", "").trim();
+					powerleft = Integer.parseInt(pair_v);
+				}
+				me.setBattery(powerleft);
 			} else if (pair_k.equals("task_isfinished")) {
 				me.setFinished(Boolean.parseBoolean(pair_v));
 			} else if (pair_k.equals("task_error")) {
@@ -69,14 +74,6 @@ public class AGVStatus {
 
 	public void setCmd(String cmd) {
 		this.cmd = cmd;
-	}
-
-	public String getBattery() {
-		return battery;
-	}
-
-	public void setBattery(String battery) {
-		this.battery = battery;
 	}
 
 	public String getTaskName() {
@@ -109,6 +106,14 @@ public class AGVStatus {
 
 	public void setError(String error) {
 		this.error = error;
+	}
+	
+	public int getBattery() {
+		return battery;
+	}
+
+	public void setBattery(int battery) {
+		this.battery = battery;
 	}
 
 }

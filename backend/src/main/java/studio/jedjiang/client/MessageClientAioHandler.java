@@ -111,8 +111,36 @@ public class MessageClientAioHandler implements ClientAioHandler {
 					if (task != null) {
 						// 如果数据库里执行中的任务和上报完成的任务是同一个任务，则设置状态为完成
 						if(taskStatus.getTaskName().contains(task.getName())){
+							
+							// 设置完成状态前，删除所有之前已完成的任务
+							taskService.clearFinished();
 							task.setStatus(Task.TASK_FINISHED);
 							taskService.update(task);
+							
+							// 电量小于20%需要充电
+							if(taskStatus.getBattery() < 20){
+								
+								// 1，新增充电任务
+								String newTask = AGVClient.getFromSiteToChargeSite(task.getName());
+								taskService.addByStatus(newTask, Task.TASK_IN_PROCESS);
+								
+								// 2，发送新增的充电任务
+								messageClient.send(newTask);
+								
+								// 3，如果发现有下个任务，变更下个任务： 充电站→目标站点
+								Task nextTask = taskService.findNext();
+								if(nextTask != null){
+									// 任务变更： 充电站→目标站点
+									String nextTaskName = nextTask.getName();
+									nextTask.setName(nextTaskName.substring(0,1) + "71" + nextTaskName.substring(2));
+									taskService.update(nextTask);
+									
+								}
+								
+								// \\\\\充电情况处理完毕，返回
+								return;
+							}
+							
 							
 							// 然后取下一条待办任务
 							Task nextTask = taskService.findNext();
@@ -122,7 +150,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 								nextTask.setStatus(Task.TASK_IN_PROCESS);
 								taskService.update(nextTask);
 							} else {
-								// 如果没有可执行的任务，回待办区
+								// 如果没有可执行的任务，回待命区
 								
 								// 判断任务是否在待命区
 								String finishedTaskName = task.getName().replace(".xml", "").trim();
@@ -131,7 +159,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 									return;
 								}
 								
-								// 如果不在待命区, 则回待命区
+								// 如果不在待命区, 则回待命区（定子→待命区，转子→待命区，充电 → 待命区）
 								String startSiteTask= AGVClient.getCmdFromSiteToStartSite(finishedTaskName);
 								messageClient.send(startSiteTask);
 								taskService.addByStatus(startSiteTask,Task.TASK_IN_PROCESS);

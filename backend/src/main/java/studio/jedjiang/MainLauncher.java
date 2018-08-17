@@ -249,6 +249,18 @@ public class MainLauncher {
 			return Result.error(e.getMessage());
 		}
 	}
+	
+	@Filters(@By(type = CrossOriginFilter.class))
+	@At("/task/reset")
+	@Ok("json")
+	public Result reset() {
+		try {
+			taskService.clearAll();
+			return Result.success();
+		} catch (Exception e) {
+			return Result.error(e.getMessage());
+		}
+	}
 
 	@Filters(@By(type = CrossOriginFilter.class))
 	@At("/task/top/?")
