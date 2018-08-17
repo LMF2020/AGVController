@@ -4,8 +4,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- <title>车载自动化</title> -->
-	<title>test</title>
+	<title>agv-auto-controller</title>
 	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="lib/layui/css/layui.css" />
 	<link rel="stylesheet" href="css/frame.css" />
@@ -19,7 +18,7 @@
 			</nav>
 			<div class="col">
 				<div class="row h-100">
-					<!-- 左边显示图表-->
+					<!-- 左边显示图表--> 
 					<div class="col chart-wrap padding">
 						<div id="mainChart" class='w-100 h-100'></div>
 					</div>
@@ -28,40 +27,55 @@
 						<div class="container-fluid">
 							<div class="row flex-column">
 								<div class='col-12 mb-15'>
-									<div class="row mb-15">
-										<div class="col-6">
-											<button type="button" id='end_task' class="btn btn-sm btn-block btn-outline-danger">暂停</button>
-										</div>
-										<div class="col-6">
-											<button type="button" id='rec_task' class="btn btn-sm btn-block btn-outline-info">继续</button>
-										</div>
-									</div>
 									<div class="row">
 										<div class="col-12">
-											<button type="button" id='open_task' class="btn btn-sm btn-block btn-outline-primary">开始</button>
+										<form>
+											<div class="form-group">
+												<label for="exampleInputEmail1">位置</label>
+												<select class="form-control form-control-sm" id="position" placeholder="位置">
+													<option value="1">1号位</option>
+													<option value="2">2号位</option>
+													<option value="3">3号位</option>
+													<option value="4">4号位</option>
+													<option value="5">5号位</option>
+													<option value="6">6号位</option>
+												</select>
+											</div>
+											<div class="form-group">
+												<label for="exampleInputEmail1">分类</label>
+												<select class="form-control form-control-sm" id="catalog" placeholder="分类">
+													<option value="1">定子</option>
+													<option value="2">转子</option>
+													<option value="0">返仓</option>
+												</select>
+											</div>
+											<!--
+											<div class="form-group form-row">
+												<div class="col-6">
+													<button type="button" id='open_task' class="btn btn-sm btn-block btn-outline-primary">暂停任务</button>
+												</div>
+												<div class="col-6">
+													<button type="button" id='rec_task' class="btn btn-sm btn-block btn-outline-info">恢复任务</button>
+												</div>
+											</div>
+											-->
+											<div class="form-group form-row">
+												<div class="col-6">
+													<button type="button" id='add_task' class="btn btn-sm btn-block btn-outline-primary">添加任务</button>
+												</div>
+												<div class="col-6">
+													<button type="button" id='clear_task' class="btn btn-sm btn-block btn-outline-info">清理任务</button>
+												</div>
+											</div>
+										</form>
 										</div>
 									</div>
-									<!-- <form class='w-100'>
-										<div class="w-100 form-group form-row">
-											<div class="col-6">
-												<button type="button" id='open_task' class="btn btn-sm btn-block btn-outline-primary">开始</button>
-											</div>
-											<div class="col-6">
-												<button type="button" id='rec_task' class="btn btn-sm btn-block btn-outline-info">继续</button>
-											</div>
-										</div>
-										<div class="w-100 form-group form-row">
-											<div class="col-12">
-												<button type="button" id='end_task' class="btn btn-sm btn-block btn-outline-danger">暂停</button>
-											</div>
-										</div>
-									</form> -->
 								</div>
 								<div class="col-12 ">
 										<div class="docker w-100">
 												<span>任务列表</span>
 												<table id="tasklist" lay-filter="tasklist"></table>
-											</div>
+										</div>
 								</div>
 							
 

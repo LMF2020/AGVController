@@ -47,8 +47,8 @@ var COMJS = (function() {
 		//
 		//		})
 		layer.alert(msg, {
-			icon: 1,
-			area: ['500px', '250px'],
+			icon: 1
+			//area: ['500px', '250px'],
 		})
 	}
 
