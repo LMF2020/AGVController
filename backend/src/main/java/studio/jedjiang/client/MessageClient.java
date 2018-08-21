@@ -140,7 +140,7 @@ public class MessageClient {
 		// 任务没结束不能发送新任务
 		AGVStatus status = AGVStatusCacheClient.getInstance().get(AGVClient.ONE_AVG_ID);
 		if(!status.isFinished()) {
-			log.error("车载任务尚未结束： " + status.getTaskName() + "，CMD：" + status.getCmd());
+			log.error("车载任务尚未结束： " + status.getTaskName());
 			return Result.error("车载任务尚未结束：" + status.getTaskName() + "，设备电量：" + status.getBattery());
 		}
 

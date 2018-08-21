@@ -1,5 +1,9 @@
 package studio.jedjiang.bean;
 
+import org.nutz.lang.Strings;
+
+import studio.jedjiang.client.AGVClient;
+
 /**
  * agv任务状态
  * 
@@ -13,12 +17,13 @@ public class AGVStatus {
 
 	// 车子编号
 	private String avgCode;
-	private String cmd;
 	private String taskName;
 	private int battery;
 	private boolean isFinished;
 	private String error;
-
+	
+	private String x;
+	private String y;
 	/**
 	 * 创建实时状态
 	 * 
@@ -31,25 +36,30 @@ public class AGVStatus {
 		String[] kv = respCode.trim().split(";");
 
 		for (String item : kv) {
-			String[] pair = item.split("=");
+			String[] pair = item.split("=", 2);
 			String pair_k = pair[0].trim();
-			String pair_v = pair[1].trim();
+			String pair_v = pair[1].trim();			
 
-			if (pair_k.equals("cmd")) {
-				me.setCmd(pair_v);
-			} else if (pair_k.equals("task")) {
-				me.setTaskName(pair_v);
-			} else if (pair_k.equals("battery")) {
-				int powerleft = 100;
-				if(pair_v.contains("%")){
-					pair_v = pair_v.replace("%", "").trim();
+			if (pair_k.equals("task")) {
+				if(Strings.isBlank(pair_v)){
+					me.setTaskName(AGVClient.NO_TASK);
+				}else {
+					me.setTaskName(pair_v);
+				}
+			} else if (pair_k.equals("battery")) { // 电量
+				int powerleft = 60;
+				if(Strings.isNotBlank(pair_v)) {
 					powerleft = Integer.parseInt(pair_v);
 				}
 				me.setBattery(powerleft);
 			} else if (pair_k.equals("task_isfinished")) {
-				me.setFinished(Boolean.parseBoolean(pair_v));
+				me.setFinished("1".equals(pair_v));
 			} else if (pair_k.equals("task_error")) {
 				me.setError(pair_v);
+			} else if(pair_k.equals("x")) {
+				me.setX(pair_v);
+			} else if(pair_k.equals("y")) {
+				me.setY(pair_v);
 			}
 		}
 
@@ -63,17 +73,8 @@ public class AGVStatus {
 	 */
 	public void update(AGVStatus me) {
 		this.setBattery(me.getBattery());
-		this.setCmd(me.getCmd());
 		this.setError(me.getError());
 		this.setFinished(me.isFinished());
-	}
-
-	public String getCmd() {
-		return cmd;
-	}
-
-	public void setCmd(String cmd) {
-		this.cmd = cmd;
 	}
 
 	public String getTaskName() {
@@ -116,4 +117,21 @@ public class AGVStatus {
 		this.battery = battery;
 	}
 
+	public String getX() {
+		return x;
+	}
+
+	public void setX(String x) {
+		this.x = x;
+	}
+
+	public String getY() {
+		return y;
+	}
+
+	public void setY(String y) {
+		this.y = y;
+	}
+
+	
 }

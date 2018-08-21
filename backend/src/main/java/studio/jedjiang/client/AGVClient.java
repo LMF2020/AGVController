@@ -1,8 +1,12 @@
 package studio.jedjiang.client;
 
+import java.util.List;
+
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+
+import com.google.common.collect.Lists;
 
 import studio.jedjiang.bean.AGVStatus;
 
@@ -19,6 +23,7 @@ public class AGVClient {
 	// 缓存任务列表(后期采用LRU模型, 如果是多任务需要引入memcached)
 	public static AGVStatusCacheClient agvCacheClient = AGVStatusCacheClient.getInstance();
 
+	public static final String NO_TASK = "no_task";
 	
 	// 定子，转子，返仓
 	public static final String DZ_NUM = "1";
@@ -30,6 +35,9 @@ public class AGVClient {
 	public static final String DZ_FLAG = "D";
 	public static final String ZZ_FLAG = "Z";
 	public static final String FC_FLAG = "F";
+	
+	// 需要改变起始点的站点
+	public static final List<String> NEED_CHANGED_FROM_SITE = Lists.newArrayList("10","20","30","40","50");
 	
 	/**
 	 * 检测心跳超时时间
@@ -84,12 +92,13 @@ public class AGVClient {
 			me = AGVStatus.ofme(agvResponse);
 		} catch (Exception e) {
 			log.error("报文解析错误：ofme() error：" + agvResponse);
+			e.printStackTrace();
 			return null;
 		}
 		
 		agvCacheClient.put(ONE_AVG_ID, me);
 
-		log.info("报文解析成功: 当前任务为=>" + me.getTaskName());
+		// log.infof("报文解析成功: 当前任务:%s",me.getTaskName());
 
 		return me;
 	}
@@ -98,7 +107,7 @@ public class AGVClient {
 	 * 获取回待命区的指令 
 	 */
 	// for example : Z3221
-	public static String getCmdFromSiteToStartSite(String fromSite){
+	public static String getCmdFromSiteToBackSite(String fromSite){
 		StringBuilder cmd = new StringBuilder();
 		// 定子转子回待命区 SXX00, 返仓回待命区 S6070, 充电回待命区S7170
 		fromSite = fromSite.replace(".xml", "").trim();
@@ -144,7 +153,15 @@ public class AGVClient {
 		return null;
 	}
 	
-	
+	/**
+	 * 满足以下条件，改变待办任务的起始点：10,20,30,40,50结尾的都以60开头
+	 */
+	public static String updateFromSite(String fromSite) {
+		if(NEED_CHANGED_FROM_SITE.contains(fromSite)) {
+			fromSite = "60";
+		}
+		return fromSite;
+	}
 	/**
 	 * 打印错误堆栈信息
 	 */
@@ -160,8 +177,11 @@ public class AGVClient {
 	}
 	
 	public static void main(String[] args) {
-		String word = "Sty679";
-		System.out.println(word.substring(2));
+		// String word = "Sty679";
+		// System.out.println(word.substring(2));
+				
+		
+		
 	}
 
 }

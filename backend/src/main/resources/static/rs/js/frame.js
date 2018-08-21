@@ -120,13 +120,9 @@ layui.use(['layer', 'tasklist'], function() {
 			// y 坐标
 			var y = agvStatus['y']
 			// 如果有错误, 车子的报错日志
-			var error = agvStatus['error']
-			if(error){
-				console.error(error)
-			} else {
-				console.log("x="+x + ",y=" + y)
-				myChart.setOption(chartOptions(x, y, 0));
-			}
+			// var error = agvStatus['error']
+			console.log("x="+x + ",y=" + y)
+			myChart.setOption(chartOptions(x, y, 0));
 		};
 		ws.onclose = function(e) {
 			console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);

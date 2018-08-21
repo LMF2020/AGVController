@@ -186,9 +186,13 @@ public class MainLauncher {
 			}
 			// 3. 此时认为车子在待命区(1)
 			if(!find){
-				log.info("找不到任务，算出起始站点：00");
+				log.info("找不到任务，设置起始站点：00");
 				fromSite = "00";
 			}
+			
+			// 4. 10,20,30,40,50结尾的都以60开头
+			fromSite = AGVClient.updateFromSite(fromSite);
+			
 			// 推算出任务名
 			String _thisTask = prefix + fromSite + targetSite;
 			// 添加任务 (到数据库)

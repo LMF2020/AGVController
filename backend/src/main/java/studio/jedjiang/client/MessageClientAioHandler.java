@@ -100,12 +100,19 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			String agvResponse = new String(body, MessagePacket.CHARSET);
 			// 更新缓存
 			AGVStatus taskStatus = AGVClient.updateCache(agvResponse);
-			log.info("收到服务器消息：" + agvResponse);
+			
+			// 报文解析失败不处理
+			if(taskStatus == null) {
+				return;
+			}
 
 			// 处理结束的任务
 			if (taskStatus.isFinished()) {
-
+				
 				synchronized (this) {
+					
+					log.debugf("任务完成：%s" , agvResponse);
+					
 					// 获取执行中的任务
 					Task task = taskService.getOngoingTask();
 					if (task != null) {
@@ -117,8 +124,8 @@ public class MessageClientAioHandler implements ClientAioHandler {
 							task.setStatus(Task.TASK_FINISHED);
 							taskService.update(task);
 							
-							// 电量小于20%需要充电
-							if(taskStatus.getBattery() < 20){
+							// 电量小于30%需要充电
+							if(taskStatus.getBattery() < 30){
 								
 								// 1，新增充电任务
 								String newTask = AGVClient.getFromSiteToChargeSite(task.getName());
@@ -151,22 +158,17 @@ public class MessageClientAioHandler implements ClientAioHandler {
 								taskService.update(nextTask);
 							} else {
 								// 如果没有可执行的任务，回待命区
+								// 条件：判断任务是否在待命区
+								autoBack(task.getName());
 								
-								// 判断任务是否在待命区
-								String finishedTaskName = task.getName().replace(".xml", "").trim();
-								if(finishedTaskName.endsWith("00") || finishedTaskName.endsWith("70")){
-									// \\\\\如果在待命区， 则返回，不做处理
-									return;
-								}
-								
-								// 如果不在待命区, 则回待命区（定子→待命区，转子→待命区，充电 → 待命区）
-								String startSiteTask= AGVClient.getCmdFromSiteToStartSite(finishedTaskName);
-								messageClient.send(startSiteTask);
-								taskService.addByStatus(startSiteTask,Task.TASK_IN_PROCESS);
 							}
 							
 						}
 
+					} else {
+						// 任务清理后，自动回待命区，根据最后一次上报的任务拿到任务
+						autoBack(taskStatus.getTaskName());
+						
 					}
 
 				}
@@ -178,6 +180,31 @@ public class MessageClientAioHandler implements ClientAioHandler {
 		}
 		return;
 	}
+	
+	// 没有任务自动回待命区
+	public void autoBack(String taskName) {
+
+		// 如果没有可执行的任务，回待命区
+		
+		// 判断任务是否在待命区
+		String finishedTaskName = taskName.replace(".xml", "").trim();
+		if(finishedTaskName.endsWith("00") || finishedTaskName.endsWith("70")){
+			// \\\\\如果在待命区， 则返回，不做处理
+			return;
+		}
+		
+		// 如果不在待命区, 则回待命区（定子→待命区，转子→待命区，充电 → 待命区）
+		String startSiteTask= AGVClient.getCmdFromSiteToBackSite(finishedTaskName);
+		messageClient.send(startSiteTask);
+		try {
+			taskService.addByStatus(startSiteTask,Task.TASK_IN_PROCESS);
+		} catch (Exception e) {
+			// e.printStackTrace();
+			log.errorf("错误：没有任务, 自动回待命区, 前一次任务 : %s", taskName);
+		}
+	
+	}
+	
 	
 	/**
 	 * 如果返回null，框架层面则不会发心跳；如果返回非null，框架层面会定时发本方法返回的消息包
