@@ -24,6 +24,8 @@ import studio.jedjiang.bean.Result;
 import studio.jedjiang.bean.Task;
 import studio.jedjiang.client.AGVClient;
 import studio.jedjiang.client.MessageClient;
+import studio.jedjiang.license.LicenseProcessor;
+import studio.jedjiang.license.LicenseUtil;
 import studio.jedjiang.service.TaskService;
 import studio.jedjiang.websocket.WsMsgHandler;
 import studio.jedjiang.websocket.WsMsgStarter;
@@ -51,11 +53,14 @@ public class MainLauncher {
 	@Inject
 	protected TaskService taskService;
 
-	public void init() {
+	public void init() throws Exception {
 		// 环境检查
 		if (!Charset.defaultCharset().name().equalsIgnoreCase(Encoding.UTF8)) {
 			log.warn("This project must run in UTF-8, pls add -Dfile.encoding=UTF-8 to JAVA_OPTS");
 		}
+		
+		// 读取并验证授权
+		LicenseUtil.readLocalLicense();
 
 		// 初始化数据表
 		initDataSource();
@@ -84,8 +89,8 @@ public class MainLauncher {
 		Daos.migration(dao, "studio.jedjiang.bean", true, false);
 
 	}
-
-	@Filters(@By(type = CrossOriginFilter.class))
+	
+	@Filters({@By(type = CrossOriginFilter.class), @By(type=LicenseProcessor.class)})
 	@At("/cmd/task/create/?")
 	@Ok("json")
 	public Result sendCommand(String command) {
@@ -132,7 +137,7 @@ public class MainLauncher {
 	}
 
 	// 添加任务并检查是否需要发送任务
-	@Filters(@By(type = CrossOriginFilter.class))
+	@Filters({@By(type = CrossOriginFilter.class), @By(type=LicenseProcessor.class)})
 	@At("/task/add/?/?")
 	@Ok("json") // site - 站点(1-5), type - 返仓,转子,定子
 	public Result addTask(String site, String type) {

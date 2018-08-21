@@ -80,6 +80,11 @@ layui.use(['layer', 'tasklist'], function() {
 				url: COMJS.CTX_PATH + cmd
 			})
 			.done(function(resp) {
+				// 处理授权到期
+				if(resp.code == 1002){
+					console.log("授权到期");
+					location.replace(location.protocol + "/rs/expired.html");
+				}
 				if(resp.code == 1) {
 					COMJS.error(resp.msg);
 				} else {
