@@ -106,6 +106,14 @@ public class MessageClientAioHandler implements ClientAioHandler {
 				return;
 			}
 
+			// 如果是充电任务，检查充电是否完成
+			if(taskStatus.getTaskName().replace(".xml", "").trim().endsWith("71")) {
+				int battery = taskStatus.getBattery();
+				if(battery >= AGVClient.BATTERY_FULL_MAX_VAL) {
+					taskStatus.setFinished(true);
+				}
+			}
+			
 			// 处理结束的任务
 			if (taskStatus.isFinished()) {
 				
@@ -125,14 +133,14 @@ public class MessageClientAioHandler implements ClientAioHandler {
 							taskService.update(task);
 							
 							// 电量小于30%需要充电
-							if(taskStatus.getBattery() < 30){
+							if(taskStatus.getBattery() < AGVClient.BATTERY_LOWER_MIN_VAL){
 								
 								// 1，新增充电任务
-								String newTask = AGVClient.getFromSiteToChargeSite(task.getName());
-								taskService.addByStatus(newTask, Task.TASK_IN_PROCESS);
+								String chargeTask = AGVClient.getFromSiteToChargeSite(task.getName());
+								taskService.addByStatus(chargeTask, Task.TASK_IN_PROCESS);
 								
 								// 2，发送新增的充电任务
-								messageClient.send(newTask);
+								messageClient.send(chargeTask);
 								
 								// 3，如果发现有下个任务，变更下个任务： 充电站→目标站点
 								Task nextTask = taskService.findNext();
@@ -159,7 +167,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 							} else {
 								// 如果没有可执行的任务，回待命区
 								// 条件：判断任务是否在待命区
-								autoBack(task.getName());
+								autoReturnBack(task.getName());
 								
 							}
 							
@@ -167,7 +175,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 
 					} else {
 						// 任务清理后，自动回待命区，根据最后一次上报的任务拿到任务
-						autoBack(taskStatus.getTaskName());
+						autoReturnBack(taskStatus.getTaskName());
 						
 					}
 
@@ -182,7 +190,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 	}
 	
 	// 没有任务自动回待命区
-	public void autoBack(String taskName) {
+	public void autoReturnBack(String taskName) {
 
 		// 如果没有可执行的任务，回待命区
 		
