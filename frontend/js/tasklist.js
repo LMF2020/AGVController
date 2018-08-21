@@ -68,6 +68,11 @@ layui.define(['jquery', 'table'], function(exports) {
 					url: COMJS.CTX_PATH + "/task/" + action + "/" + taskId
 				})
 				.done(function(resp) {
+					if(resp.code == 1002){
+						console.log("授权到期");
+						// TODO: 跳转到授权页面
+						
+					}
 					if(resp.code == 1) {
 						console.error(resp.msg);
 					} else {
