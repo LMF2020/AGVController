@@ -112,6 +112,7 @@
 		</repository>
 	</repositories>
 	<build>
+		<finalName>agv</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>

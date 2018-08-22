@@ -1,13 +1,23 @@
 package studio.jedjiang.license;
 
+import java.io.File;
+import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.nutz.lang.Encoding;
+import org.nutz.lang.Files;
+import org.nutz.lang.Strings;
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
+
 import cn.hutool.core.codec.Base64;
+import studio.jedjiang.MainLauncher;
 
 public class LicenseUtil {
 	
+	private static final Log log = Logs.get();
 	public final static int LICENSE_EXPIRED = 1002;
 	
 	// 系统启动会加载license后读取的到期时间写入内存
@@ -22,15 +32,56 @@ public class LicenseUtil {
 		return Base64.encode(encData);
 	}
 	
+	// 服务启动时验证
 	public static void readLocalLicense() throws Exception{
-		// 从工程相对目录读取license文件信息
-		plain_end_date = Long.valueOf("1536940800000");
+		// jar 包目录
+		String jarPath = getBasePath();
+		boolean isDebug = jarPath.contains("/target/classes");
+		// 本地调试不验证授权
+		if(isDebug) { 
+			// 这个时间足够长 => 2099年
+			plain_end_date = Long.valueOf("4093084800000");
+		}else {
+			// 检查授权文件是否存在
+			String filePath = Strings.join(File.separator, "config", File.separator, "lic");
+			File f = new File(filePath);
+	        if (!f.exists() ||  !f.isFile()) {
+	        	throw new Exception("授权文件不存在");
+	        }
+	        // 读取授权文件
+	        String encLicense = Files.read(f).trim();
+	        try {
+	        	plain_end_date = extractLicense(encLicense);
+			} catch (Exception e) {
+				throw new Exception("授权文件错误");
+			}
+		}
+
+		log.infof("授权到期时间: %s", dateFormat.format(new Date(plain_end_date)));
+		
 		boolean expired = checkIfExpired();
 		if(expired) {
 			throw new Exception("授权服务已到期");
 		}
+		
 	}
 	
+    // 获取应用程序绝对路径
+    protected static String getBasePath() {
+        try {
+            String basePath = MainLauncher.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            int lastIndex = basePath.lastIndexOf('/');
+            if (lastIndex < 0) {
+                lastIndex = basePath.lastIndexOf('\\');
+            }
+            basePath = basePath.substring(0, lastIndex);
+            basePath = URLDecoder.decode(basePath, Encoding.UTF8);
+            return basePath;
+        } catch (Throwable e) {
+        }
+        return ".";
+    }
+    
 	// 返回true说明license过期
 	public static boolean checkIfExpired() {
 		long now = new Date().getTime();
@@ -38,6 +89,9 @@ public class LicenseUtil {
 	}
 	
 	public static long extractLicense(String encLicense) throws Exception {
+		if(Strings.isBlank(encLicense)) {
+			throw new Exception("内容为空的授权文件");
+		}
 		byte[] byteLicense = Base64.decode(encLicense);
 		byte[] decodeData = RSAUtil.operByPrivateKey(byteLicense, pvk, RSAUtil.DECRYPT_MODE);
 		String decDate = new String(decodeData);
