@@ -28,28 +28,28 @@ layui.define(['jquery', 'table'], function(exports) {
 								}
 								return text;
 							}
-						}/*,
+						},
 						{
 							title: '操作',
 							align: 'center',
-							toolbar: '#taskbar'
-						}*/
+							toolbar: '#taskbarUI'
+						}
 					]
 				]
 			});
 
 			//监听工具条
-//			table.on('tool(tasklist)', function(obj) {
-//				var data = obj.data; //获得当前行数据
-//				var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
-//
-//				if(layEvent === 'del') { // 删除任务
-//					layer.confirm('确定删除该任务(' + data.name + ')吗？', function(index) {
-//						layer.close(index);
-//						me.sendTaskAction("delete", data.id);
-//					});
-//				}
-//			});
+			table.on('tool(tasklist)', function(obj) {
+				var data = obj.data; //获得当前行数据
+				var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+
+				if(layEvent === 'del') { // 删除任务
+					layer.confirm('确定删除任务(' + data.name + ')？后面关联的待办任务将会被级联删除', function(index) {
+						layer.close(index);
+						me.sendTaskAction("delete", data.id);
+					});
+				}
+			});
 			
 			// 10s 刷新一次任务列表
 			setInterval(function() {

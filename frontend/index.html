@@ -20,11 +20,11 @@
 			<div class="col">
 				<div class="row h-100">
 					<!-- 左边显示图表--> 
-					<div class="col-10 chart-wrap padding">
+					<div class="col-md-9 col-sm-6 chart-wrap padding">
 						<div id="mainChart" class='w-100 h-100'></div>
 					</div>
 					<!-- 右边显示操作-->
-					<div class="menu-wrap padding ">
+					<div class="col-md-3 col-sm-6 menu-wrap padding ">
 						<div class="container-fluid">
 							<div class="row flex-column">
 								<div class='col-12 mb-15'>
@@ -39,7 +39,6 @@
 													<option value="3">3号位</option>
 													<option value="4">4号位</option>
 													<option value="5">5号位</option>
-													<option value="6">6号位</option>
 												</select>
 											</div>
 											<div class="form-group">
@@ -65,7 +64,12 @@
 													<button type="button" id='add_task' class="btn btn-sm btn-block btn-outline-primary">添加任务</button>
 												</div>
 												<div class="col-6">
-													<button type="button" id='clear_task' class="btn btn-sm btn-block btn-outline-info">清理任务</button>
+													<button type="button" id='clear_task' class="btn btn-sm btn-block btn-outline-info">重置任务</button>
+												</div>
+											</div>
+											<div class="form-group form-row">
+												<div class="col-6">
+													<button type="button" id='clear_todo_task' class="btn btn-sm btn-block btn-outline-primary">清空待办任务</button>
 												</div>
 											</div>
 										</form>
@@ -78,8 +82,6 @@
 												<table id="tasklist" lay-filter="tasklist"></table>
 										</div>
 								</div>
-							
-
 							</div>
 						</div>
 
@@ -90,8 +92,10 @@
 
 	</div>
 
-	<script type="text/html" id="taskbar">
+	<script type="text/html" id="taskbarUI">
+		{{#  if(d.status === 0){ }}
 		<i class="layui-icon" lay-event="del" style="font-size: 25px; color: #1E9FFF;">&#x1006;</i>
+		{{#  } }}
 	</script>
 
 	<script src="lib/jquery.min.js"></script>

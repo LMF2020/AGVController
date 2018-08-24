@@ -6,6 +6,10 @@ body .layer-unvisiable {
 	box-shadow: none;
 }
 
+body .layui-table-body{
+	overflow-x: hidden;	
+}
+
 .full {
 	background-color: #dc3545!important;
 	color: white;

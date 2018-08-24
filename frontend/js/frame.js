@@ -17,6 +17,8 @@ layui.use(['layer', 'tasklist'], function() {
 	var RECOVER_TASK = 2;
 	// 重置任务
 	var CLEAR_TASK = 3;
+	// 清空待办任务
+	var CLEAR_TODO_TASK = 4;
 	
 	// 任务列表
 	try{
@@ -39,10 +41,17 @@ layui.use(['layer', 'tasklist'], function() {
 			})
 		})
 		
-		// 清理任务
+		// 重置任务
 		$("#clear_task").click(function() {
-			COMJS.confirm('清理任务？清理后请确保车子在待命区才能继续添加任务', function() {
+			COMJS.confirm('确认重置任务？重置后车子将会自动返回待命区', function() {
 				sendCommand(CLEAR_TASK)
+			})
+		})
+
+		// 清空待办任务
+		$("#clear_todo_task").click(function() {
+			COMJS.confirm('确认清空所有待办任务吗？', function() {
+				sendCommand(CLEAR_TODO_TASK)
 			})
 		})
 
@@ -63,6 +72,8 @@ layui.use(['layer', 'tasklist'], function() {
 		var cmd = '';
 		if(flag === CREATE_TASK) {
 			cmd = "/task/add/" + params
+		} else if(flag === CLEAR_TODO_TASK){
+			cmd = "/task/clearTodo";
 		} else if(flag === CLEAR_TASK) {
 			cmd = "/task/clear"
 		} else if(flag === END_TASK) {
