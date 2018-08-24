@@ -17,6 +17,8 @@ layui.use(['layer', 'tasklist'], function() {
 	var RECOVER_TASK = 2;
 	// 重置任务
 	var CLEAR_TASK = 3;
+	// 清空待办任务
+	var CLEAR_TODO_TASK = 4;
 	
 	// 任务列表
 	try{
@@ -39,10 +41,17 @@ layui.use(['layer', 'tasklist'], function() {
 			})
 		})
 		
-		// 清理任务
+		// 重置任务
 		$("#clear_task").click(function() {
-			COMJS.confirm('清理任务？清理后请确保车子在待命区才能继续添加任务', function() {
+			COMJS.confirm('确认重置任务？重置后车子将会自动返回待命区', function() {
 				sendCommand(CLEAR_TASK)
+			})
+		})
+
+		// 清空待办任务
+		$("#clear_todo_task").click(function() {
+			COMJS.confirm('确认清空所有待办任务吗？', function() {
+				sendCommand(CLEAR_TODO_TASK)
 			})
 		})
 
@@ -63,6 +72,8 @@ layui.use(['layer', 'tasklist'], function() {
 		var cmd = '';
 		if(flag === CREATE_TASK) {
 			cmd = "/task/add/" + params
+		} else if(flag === CLEAR_TODO_TASK){
+			cmd = "/task/clearTodo";
 		} else if(flag === CLEAR_TASK) {
 			cmd = "/task/clear"
 		} else if(flag === END_TASK) {
@@ -152,15 +163,15 @@ layui.use(['layer', 'tasklist'], function() {
 		// 使用刚指定的配置项和数据显示图表。
 		myChart.setOption(chartOptions(-40100, -7330, 0));
 
-		function getAngle(x1, y1, x2, y2) {
-			var x = Math.abs(x1 - x2);
-			var y = Math.abs(y1 - y2);
-			var z = Math.sqrt(x * x + y * y);
-			return Math.round((Math.asin(y / z) / Math.PI * 180));
-		}
-
-		var target_start = [20, 40]
-		var target_end = [10, 40]
+//		function getAngle(x1, y1, x2, y2) {
+//			var x = Math.abs(x1 - x2);
+//			var y = Math.abs(y1 - y2);
+//			var z = Math.sqrt(x * x + y * y);
+//			return Math.round((Math.asin(y / z) / Math.PI * 180));
+//		}
+//
+//		var target_start = [20, 40]
+//		var target_end = [10, 40]
 
 //		function mockAnimate() {
 //			var currentLocation = mockAnimate.location || [0, 0]

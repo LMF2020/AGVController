@@ -33,6 +33,9 @@ public interface TaskService {
 
 	// 移除任务
 	void delete(List<String> taskIds) throws Exception;
+	
+	// 移除待办任务(同时会级联删除关联的待办任务)
+	void deleteTodo(String taskId) throws Exception;
 
 	// 移除指定任务
 	void deleteList(List<Task> tasks) throws Exception;
@@ -46,6 +49,9 @@ public interface TaskService {
 	// 清空任务
 	void clearAll() throws Exception;
 
+	// 清空待办任务
+	void clearTodo() throws Exception;
+	
 	// 清空已完成的任务
 	void clearFinished() throws Exception;
 

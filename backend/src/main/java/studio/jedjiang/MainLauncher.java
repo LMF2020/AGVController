@@ -240,13 +240,25 @@ public class MainLauncher {
 	@Ok("json")
 	public Result deleteTask(String id) {
 		try {
-			taskService.delete(Lists.newArrayList(id));
+			taskService.deleteTodo(id);
 			return Result.success();
 		} catch (Exception e) {
 			return Result.error(e.getMessage());
 		}
 	}
 
+	@Filters(@By(type = CrossOriginFilter.class))
+	@At("/task/clearTodo")
+	@Ok("json")
+	public Result clearTodoTask() {
+		try {
+			taskService.clearTodo();
+			return Result.success();
+		} catch (Exception e) {
+			return Result.error(e.getMessage());
+		}
+	}
+	
 	@Filters(@By(type = CrossOriginFilter.class))
 	@At("/task/clearFinished")
 	@Ok("json")

@@ -10,10 +10,13 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.trans.Atom;
+import org.nutz.trans.Trans;
 
 import com.google.common.collect.Lists;
 
 import studio.jedjiang.bean.Task;
+import studio.jedjiang.client.AGVClient;
 
 
 @IocBean
@@ -92,6 +95,11 @@ public class TaskServiceImpl implements TaskService {
 		dao.clear(Task.class);
 	}
 
+	@Override
+	public void clearTodo() throws Exception {
+		dao.clear(Task.class, Cnd.where("status", "=", Task.TASK_TODO));
+	}
+	
 	/**
 	 * 清空已完成的任务
 	 */
@@ -199,6 +207,23 @@ public class TaskServiceImpl implements TaskService {
 		dao.insert(task);
 		LG.infof("新增任务:(%s),状态:(%d)", taskName, status);
 		
+	}
+
+	/**
+	 * 删除指定的待办任务，同时会级联删除后续关联的待办任务
+	 */
+	@Override
+	public void deleteTodo(String id) throws Exception {
+		Task task = dao.fetch(Task.class, id);
+		if(task == null) {
+			throw new Exception("任务不存在，无法删除");
+		}
+		Trans.exec(new Atom(){
+		    public void run() {
+				dao.clear(Task.class,Cnd.where("ordering", ">", task.getOrdering()).and("status", "=", Task.TASK_TODO));
+				dao.delete(Task.class, id);
+		    }
+		});
 	}
 
 }
