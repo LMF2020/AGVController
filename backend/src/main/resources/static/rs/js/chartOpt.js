@@ -100,12 +100,12 @@ var chartOptions = function(x,y,deg){
 				},
 				{
 				  name: 'node',
-				  value: [49150, -180],
+				  value: [51730, -180],
 				  ...nodeStyle
 				},
 				{
 				  name: 'node',
-				  value: [45540, -180],
+				  value: [42920, -180],
 				  ...nodeStyle
 				},
 				{
@@ -126,12 +126,12 @@ var chartOptions = function(x,y,deg){
 				}, 
 				{
 				  name: '定子',
-				  value: [45540, -4820],
+				  value: [42920, -4820],
 				  ...dzStyle
 				},
 				{
 				  name: '转子',
-				  value: [49150, -4820],
+				  value: [51730, -4820],
 				  ...zzStyle
 				},
 				{

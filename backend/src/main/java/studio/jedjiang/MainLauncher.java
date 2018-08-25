@@ -20,6 +20,7 @@ import org.nutz.mvc.filter.CrossOriginFilter;
 
 import com.google.common.collect.Lists;
 
+import studio.jedjiang.bean.AGVStatus;
 import studio.jedjiang.bean.Result;
 import studio.jedjiang.bean.Task;
 import studio.jedjiang.client.AGVClient;
@@ -189,13 +190,34 @@ public class MainLauncher {
 					find = true;
 				}
 			}
-			// 3. 此时认为车子在待命区(1)
+			
+			// 4. TODO: 查找服务器最后一次报过来的任务
+			if(!find){
+				AGVStatus lastAgvStatus = AGVClient.agvCacheClient.get(AGVClient.ONE_AVG_ID);
+				try {
+					if(lastAgvStatus!=null && lastAgvStatus.isFinished()) {
+						String lastTaskName = lastAgvStatus.getTaskName();
+						
+						if(AGVClient.isTaskValid(lastTaskName)) {
+							fromSite = lastTaskName.substring(lastTaskName.length() - 2);
+							log.infof("发现服务器最后一次上报的任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
+							find = true;
+						}
+						
+					}
+				} catch (Exception e) {
+					log.error("无法获取服务器最后一次上报的任务");
+				}
+			}
+
+			
+			// 5. 此时认为车子在待命区(1)
 			if(!find){
 				log.info("找不到任务，设置起始站点：00");
 				fromSite = "00";
 			}
 			
-			// 4. 10,20,30,40,50结尾的都以60开头
+			// 6. 10,20,30,40,50结尾的都以60开头
 			fromSite = AGVClient.updateFromSite(fromSite);
 			
 			// 推算出任务名

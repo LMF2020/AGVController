@@ -130,8 +130,14 @@ public class MessageClient {
 	 * @param message
 	 * @return
 	 */
-	public synchronized Result send(String message) {
-		message = AGVClient.createSendCommad(message);
+	public synchronized Result send(String taskName) {
+		
+		if(!AGVClient.isTaskValid(taskName)) {
+			log.errorf("无效任务,放弃发送：%s", taskName);
+			return null;
+		}
+		
+		taskName = AGVClient.createSendCommad(taskName);
 		if (clientChannelContext == null || clientChannelContext.isClosed) {
 			log.error("正在发送命令：但服务器尚未连接成功");
 			return Result.error("服务器连接失败");
@@ -146,12 +152,12 @@ public class MessageClient {
 
 		MessagePacket packet = new MessagePacket();
 		try {
-			packet.setBody(message.getBytes(MessagePacket.CHARSET));
+			packet.setBody(taskName.getBytes(MessagePacket.CHARSET));
 		} catch (UnsupportedEncodingException e) {
 			return Result.error("任务发送失败，失败原因：" + e.getMessage());
 		}
 		Tio.send(clientChannelContext, packet);
-		log.info("任务发送成功：" + message);
+		log.info("任务发送成功：" + taskName);
 
 		// TODO: 这里有一个bug： 用户发送第一个调度命令的之后，状态还没来及上报就接着触发下一个调度命令，这时候我不知道该如何阻止用户连续发送
 

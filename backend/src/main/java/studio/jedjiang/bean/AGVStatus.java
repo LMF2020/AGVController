@@ -38,28 +38,34 @@ public class AGVStatus {
 		for (String item : kv) {
 			String[] pair = item.split("=", 2);
 			String pair_k = pair[0].trim();
-			String pair_v = pair[1].trim();			
 
 			if (pair_k.equals("task")) {
+				String pair_v = null;
+				try {
+					pair_v = pair[1].trim();
+				} catch (Exception e) {
+					pair_v = null;
+				}
 				if(Strings.isBlank(pair_v)){
 					me.setTaskName(AGVClient.NO_TASK);
 				}else {
 					me.setTaskName(pair_v);
 				}
 			} else if (pair_k.equals("battery")) { // 电量
+				String pair_v = pair[1].trim();
 				int powerleft = 60;
 				if(Strings.isNotBlank(pair_v)) {
 					powerleft = Integer.parseInt(pair_v);
 				}
 				me.setBattery(powerleft);
 			} else if (pair_k.equals("task_isfinished")) {
-				me.setFinished("1".equals(pair_v));
+				me.setFinished("1".equals(pair[1].trim()));
 			} else if (pair_k.equals("task_error")) {
-				me.setError(pair_v);
+				me.setError(pair[1].trim());
 			} else if(pair_k.equals("x")) {
-				me.setX(pair_v);
+				me.setX(pair[1].trim());
 			} else if(pair_k.equals("y")) {
-				me.setY(pair_v);
+				me.setY(pair[1].trim());
 			}
 		}
 

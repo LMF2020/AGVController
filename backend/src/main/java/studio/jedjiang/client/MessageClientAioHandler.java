@@ -124,7 +124,15 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			if (taskStatus.isFinished()) {
 				
 				// 线程控制 ： 如果当前线程拿不到锁，直接跳过tryLock代码块
-				// synchronized (this) {}
+//				synchronized (this) {
+//					
+//					log.debugf("任务完成：%s" , agvResponse);
+//					handleFinished(taskStatus);
+//					
+//					// TODO: 发送完任务后，增加1-2秒延迟为了接受到服务器最新报文
+//					ThreadUtil.safeSleep(TimeUnit.SECONDS.toMillis(2));
+//					
+//				}
 				if(lock.tryLock()) {
 					try {
 						log.debugf("任务完成：%s" , agvResponse);
@@ -212,7 +220,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 		
 		// 判断任务是否在待命区
 		String finishedTaskName = taskName.replace(".xml", "").trim();
-		if(finishedTaskName.endsWith("00") || finishedTaskName.endsWith("70")){
+		if(finishedTaskName.endsWith("00") || finishedTaskName.endsWith("70") || taskName.equals(AGVClient.NO_TASK)){
 			// \\\\\如果在待命区， 则返回，不做处理
 			return;
 		}

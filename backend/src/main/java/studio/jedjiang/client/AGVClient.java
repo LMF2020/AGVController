@@ -28,7 +28,7 @@ public class AGVClient {
 	// 高于该值表示已充满电
 	public static final int BATTERY_FULL_MAX_VAL = 99;
 	// 低于该值表示需要充电
-	public static final int BATTERY_LOWER_MIN_VAL= 30;
+	public static final int BATTERY_LOWER_MIN_VAL= 20;
 	
 	// 定子，转子，返仓
 	public static final String DZ_NUM = "1";
@@ -97,7 +97,9 @@ public class AGVClient {
 			me = AGVStatus.ofme(agvResponse);
 		} catch (Exception e) {
 			log.error("报文解析错误：ofme() error：" + agvResponse);
-			e.printStackTrace();
+			// 报文解析出错，则清空缓存
+			agvCacheClient.put(ONE_AVG_ID, null);
+			// e.printStackTrace();
 			return null;
 		}
 		
@@ -167,6 +169,21 @@ public class AGVClient {
 		}
 		return fromSite;
 	}
+	
+	// 判断发送的任务是否有效
+	public static boolean isTaskValid(String taskName) {
+		if(Strings.isBlank(taskName)) {
+			return false;
+		}
+		if(taskName.equals(NO_TASK)) {
+			return false;
+		}
+		if(taskName.replace(".xml", "").trim().length() != 5) {
+			return false;
+		}
+		return true;
+	}
+	
 	/**
 	 * 打印错误堆栈信息
 	 */

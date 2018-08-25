@@ -1,17 +1,11 @@
 package studio.jedjiang;
 
+import studio.jedjiang.bean.AGVStatus;
+
 public class MainLauncherTest {
 	public static void main(String[] args) {
-		String site = "0A-B1.xml";
-
-		// System.out.println(Const.getStartSite(site));
-		// System.out.println(Const.getDestSite(site));
-		
-		int pos = site.indexOf(".xml");
-		if(pos != -1) {
-			site = site.substring(0, pos);
-		}
-		
-		System.out.println(site);
+		String respCode = "sition;pause_stat=0;battery=144;error=0;x=-40172;y=-6866;a=269.216003;z=-9;gAlarm=1;speed=0;task=S6070.xml;veer_angle=-15.828571;task_step=0;task_isfinished=1;task_error=0;walk_path_id=-1�";
+	
+		AGVStatus.ofme(respCode);
 	}
 }
