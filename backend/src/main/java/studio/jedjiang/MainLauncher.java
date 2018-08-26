@@ -18,8 +18,7 @@ import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.filter.CrossOriginFilter;
 
-import com.google.common.collect.Lists;
-
+import cn.hutool.core.thread.ThreadUtil;
 import studio.jedjiang.bean.AGVStatus;
 import studio.jedjiang.bean.Result;
 import studio.jedjiang.bean.Task;
@@ -192,21 +191,24 @@ public class MainLauncher {
 			}
 			
 			// 4. TODO: 查找服务器最后一次报过来的任务
-			if(!find){
+			int tryTimes = 5;
+			while(!find && tryTimes > 0){
 				AGVStatus lastAgvStatus = AGVClient.agvCacheClient.get(AGVClient.ONE_AVG_ID);
 				try {
 					if(lastAgvStatus!=null && lastAgvStatus.isFinished()) {
 						String lastTaskName = lastAgvStatus.getTaskName();
 						
 						if(AGVClient.isTaskValid(lastTaskName)) {
-							fromSite = lastTaskName.substring(lastTaskName.length() - 2);
+							fromSite = lastTaskName.replace(".xml", "").substring(lastTaskName.length() - 2);
 							log.infof("发现服务器最后一次上报的任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
 							find = true;
 						}
-						
 					}
 				} catch (Exception e) {
 					log.error("无法获取服务器最后一次上报的任务");
+				} finally {
+					ThreadUtil.safeSleep(500);
+					tryTimes--;
 				}
 			}
 
@@ -232,11 +234,12 @@ public class MainLauncher {
 			if(ongoingTask == null){
 				Task nextTask = taskService.findNext();
 				// 因为此方法就是添加待办任务，所以数据库必然有一个待办任务，而且就是 _thisTask = (nextTask)
-				messageClient.send(nextTask.getName());
-				// 更新任务状态为，执行中
-				nextTask.setStatus(Task.TASK_IN_PROCESS);
-				taskService.update(nextTask);
-				log.infof("没有执行中的任务, 发送任务：%s", nextTask.getName());
+				Result r = messageClient.send(nextTask.getName());
+				if(r.getCode() == 0) {
+					nextTask.setStatus(Task.TASK_IN_PROCESS);
+					taskService.update(nextTask);
+					log.infof("没有执行中的任务, 发送任务：%s", nextTask.getName());
+				}
 			}
 
 			return Result.success();

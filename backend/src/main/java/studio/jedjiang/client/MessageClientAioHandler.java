@@ -21,6 +21,7 @@ import org.tio.websocket.common.WsResponse;
 
 import cn.hutool.core.thread.ThreadUtil;
 import studio.jedjiang.bean.AGVStatus;
+import studio.jedjiang.bean.Result;
 import studio.jedjiang.bean.Task;
 import studio.jedjiang.service.TaskService;
 
@@ -122,25 +123,11 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			
 			// 处理结束的任务
 			if (taskStatus.isFinished()) {
-				
-				// 线程控制 ： 如果当前线程拿不到锁，直接跳过tryLock代码块
-//				synchronized (this) {
-//					
-//					log.debugf("任务完成：%s" , agvResponse);
-//					handleFinished(taskStatus);
-//					
-//					// TODO: 发送完任务后，增加1-2秒延迟为了接受到服务器最新报文
-//					ThreadUtil.safeSleep(TimeUnit.SECONDS.toMillis(2));
-//					
-//				}
+				// 线程锁并发控制
 				if(lock.tryLock()) {
 					try {
 						log.debugf("任务完成：%s" , agvResponse);
 						handleFinished(taskStatus);
-						
-						// TODO: 发送完任务后，增加1-2秒延迟为了接受到服务器最新报文
-						ThreadUtil.safeSleep(TimeUnit.SECONDS.toMillis(2));
-						
 					} finally {
 						lock.unlock();
 					}
@@ -156,65 +143,72 @@ public class MessageClientAioHandler implements ClientAioHandler {
 	
 	private void handleFinished (AGVStatus taskStatus) throws Exception {
 		// 获取执行中的任务
-		Task task = taskService.getOngoingTask();
-		if (task != null) {
+		Task onGoingTask = taskService.getOngoingTask();
+		if (onGoingTask != null) {
 			// 如果数据库里执行中的任务和上报完成的任务是同一个任务，则设置状态为完成
-			if(taskStatus.getTaskName().contains(task.getName())){
+			if(taskStatus.getTaskName().contains(onGoingTask.getName())){
 				
 				// 设置完成状态前，删除所有之前已完成的任务
 				taskService.clearFinished();
-				task.setStatus(Task.TASK_FINISHED);
-				taskService.update(task);
+				onGoingTask.setStatus(Task.TASK_FINISHED);
+				taskService.update(onGoingTask);
 				
-				// 电量小于30%需要充电
+				// 电量小于20%需要充电
 				if(taskStatus.getBattery() < AGVClient.BATTERY_LOWER_MIN_VAL){
 					
 					// 1，新增充电任务
-					String chargeTask = AGVClient.getFromSiteToChargeSite(task.getName());
+					String chargeTask = AGVClient.getFromSiteToChargeSite(onGoingTask.getName());
 					taskService.addByStatus(chargeTask, Task.TASK_IN_PROCESS);
 					
 					// 2，发送新增的充电任务
-					messageClient.send(chargeTask);
-					
-					// 3，如果发现有下个任务，变更下个任务： 充电站→目标站点
-					Task nextTask = taskService.findNext();
-					if(nextTask != null){
-						// 任务变更： 充电站→目标站点
-						String nextTaskName = nextTask.getName();
-						nextTask.setName(nextTaskName.substring(0,1) + "71" + nextTaskName.substring(3));
-						taskService.update(nextTask);
-						
+					Result r = messageClient.send(chargeTask);
+					if(r.getCode() == 0) {
+						// TDDO: 发送成功后，清空所有的待办任务
+						taskService.clearTodo();
+						ThreadUtil.safeSleep(TimeUnit.SECONDS.toMillis(1));
 					}
+					
+					
+//					// 3，如果发现有下个任务，变更下个任务： 充电站→目标站点
+//					Task nextTask = taskService.findNext();
+//					if(nextTask != null){
+//						// 任务变更： 充电站→目标站点
+//						String nextTaskName = nextTask.getName();
+//						nextTask.setName(nextTaskName.substring(0,1) + "71" + nextTaskName.substring(3));
+//						taskService.update(nextTask);
+//						
+//					}
 					
 					// \\\\\充电情况处理完毕，返回
 					return;
 				}
 				
-				
 				// 然后取下一条待办任务
-				Task nextTask = taskService.findNext();
-				if (nextTask != null) {
+				Task waitingTask = taskService.findNext();
+				if (waitingTask != null) {
 					// 如果待办任务存在, 则发送任务
-					messageClient.send(nextTask.getName());
-					nextTask.setStatus(Task.TASK_IN_PROCESS);
-					taskService.update(nextTask);
+					Result r = messageClient.send(waitingTask.getName());
+					if(r.getCode() == 0) {
+						waitingTask.setStatus(Task.TASK_IN_PROCESS);
+						taskService.update(waitingTask);
+						ThreadUtil.safeSleep(TimeUnit.SECONDS.toMillis(1));
+					}
 				} else {
 					// 如果没有可执行的任务，回待命区
 					// 条件：判断任务是否在待命区
-					autoReturnBack(task.getName());
+					autoReturnBack(onGoingTask.getName());
 				}
 			}
 
 		} else {
 			// 任务清理后，自动回待命区，根据最后一次上报的任务拿到任务
-			autoReturnBack(taskStatus.getTaskName());
+			// autoReturnBack(taskStatus.getTaskName());
 		}
 	}
 	
 	
-	
 	// 没有任务自动回待命区
-	public void autoReturnBack(String taskName) {
+	private void autoReturnBack(String taskName) {
 
 		// 如果没有可执行的任务，回待命区
 		
@@ -227,9 +221,12 @@ public class MessageClientAioHandler implements ClientAioHandler {
 		
 		// 如果不在待命区, 则回待命区（定子→待命区，转子→待命区，充电 → 待命区）
 		String startSiteTask= AGVClient.getCmdFromSiteToBackSite(finishedTaskName);
-		messageClient.send(startSiteTask);
+		Result r = messageClient.send(startSiteTask);
 		try {
-			taskService.addByStatus(startSiteTask,Task.TASK_IN_PROCESS);
+			if(r.getCode() == 0) {
+				taskService.addByStatus(startSiteTask,Task.TASK_IN_PROCESS);
+				ThreadUtil.safeSleep(TimeUnit.SECONDS.toMillis(1));
+			}
 		} catch (Exception e) {
 			// e.printStackTrace();
 			log.errorf("错误：没有任务, 自动回待命区, 前一次任务 : %s", taskName);

@@ -66,14 +66,13 @@ public class MessageClient {
 	}
 	
 	/**
-	 * 配置websocket服务
+	 * 服务配置(websocket/bettery)
 	 * @param wsGroupCtx
 	 */
 	public void initService(ServerGroupContext wsGroupCtx, TaskService taskService) {
 		messageClientAioHandler.setWsGroupCtx(wsGroupCtx);
 		messageClientAioHandler.setMessageClient(this);
 		messageClientAioHandler.setTaskService(taskService);
-		
 	}
 
 	/**
@@ -134,7 +133,7 @@ public class MessageClient {
 		
 		if(!AGVClient.isTaskValid(taskName)) {
 			log.errorf("无效任务,放弃发送：%s", taskName);
-			return null;
+			return Result.error();
 		}
 		
 		taskName = AGVClient.createSendCommad(taskName);
@@ -156,14 +155,13 @@ public class MessageClient {
 		} catch (UnsupportedEncodingException e) {
 			return Result.error("任务发送失败，失败原因：" + e.getMessage());
 		}
-		Tio.send(clientChannelContext, packet);
-		log.info("任务发送成功：" + taskName);
-
-		// TODO: 这里有一个bug： 用户发送第一个调度命令的之后，状态还没来及上报就接着触发下一个调度命令，这时候我不知道该如何阻止用户连续发送
-
-		// 解决方案：
-
-		return Result.success("任务发送成功");
+		boolean success = Tio.send(clientChannelContext, packet);
+		
+		if(success) {
+			log.info("任务发送成功：" + taskName);
+			return Result.success("任务发送成功");
+		}
+		return Result.error();
 	}
 
 }

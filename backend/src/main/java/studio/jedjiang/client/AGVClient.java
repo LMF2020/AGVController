@@ -26,7 +26,7 @@ public class AGVClient {
 	public static final String NO_TASK = "no_task";
 	
 	// 高于该值表示已充满电
-	public static final int BATTERY_FULL_MAX_VAL = 99;
+	public static final int BATTERY_FULL_MAX_VAL = 80;
 	// 低于该值表示需要充电
 	public static final int BATTERY_LOWER_MIN_VAL= 20;
 	
@@ -81,25 +81,19 @@ public class AGVClient {
 	 * @return
 	 */
 	public static AGVStatus updateCache(String agvResponse) {
-
-		if (Strings.isBlank(agvResponse)) {
-			log.error("报文解析错误：xml empty error");
-			return null;
-		}
-		if (!agvResponse.contains("cmd=") || !agvResponse.contains("battery=") || !agvResponse.contains("task_isfinished=")
-				|| !agvResponse.contains("task=")) {
-			log.error("报文解析错误：format() error：" + agvResponse);
-			return null;
-		}
-
 		AGVStatus me = null;
 		try {
 			me = AGVStatus.ofme(agvResponse);
 		} catch (Exception e) {
-			log.error("报文解析错误：ofme() error：" + agvResponse);
+			log.error("报文解析出错：ofme() error：" + agvResponse);
 			// 报文解析出错，则清空缓存
 			agvCacheClient.put(ONE_AVG_ID, null);
 			// e.printStackTrace();
+			return null;
+		}
+		
+		// 检测任务名是否合法
+		if(isTaskValid(me.getTaskName())) {
 			return null;
 		}
 		
@@ -181,6 +175,13 @@ public class AGVClient {
 		if(taskName.replace(".xml", "").trim().length() != 5) {
 			return false;
 		}
+		
+		// 第一个字符必须非数字，后面四个字符必须都是数字
+		boolean match = Strings.isNumber(taskName.substring(1)) && !Strings.isNumber(taskName.substring(0,1));
+		if(!match) {
+			return false;
+		}
+		
 		return true;
 	}
 	
