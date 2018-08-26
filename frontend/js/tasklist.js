@@ -52,13 +52,13 @@ layui.define(['jquery', 'table'], function(exports) {
 			});
 			
 			// 10s 刷新一次任务列表
-			setInterval(function() {
-				try {
-					table.reload('tasklist')
-				} catch(e) {
-					console.error('refresh failed.');
-				}
-			}, 10000);
+//			setInterval(function() {
+//				try {
+//					table.reload('tasklist')
+//				} catch(e) {
+//					console.error('refresh failed.');
+//				}
+//			}, 10000);
 
 		},
 
