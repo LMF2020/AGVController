@@ -31,7 +31,7 @@ var tcStyle = {
 // 号位
 var hwStyle={
   symbol:'rect',
-  symbolSize:[20,60],
+  symbolSize:[20,90],
   itemStyle:{
     color:'rgba(0,0,0,0)',
     borderColor:'#000',
@@ -49,7 +49,7 @@ var hwStyle={
 /**
  * Chart 绘制
  */
-var chartOptions = function(x,y,deg){
+var chartOptions = function(x, y, bt, deg){
   return {
     backgroundColor: '#fff',
     toolTip:{
@@ -171,17 +171,17 @@ var chartOptions = function(x,y,deg){
 				
 				{
 				  name: 'node',
-				  value: [-34100, -1000],
+				  value: [-34100, -2820],
 				  ...nodeStyle
 				},
 				{
 				  name: 'node',
-				  value: [-34100, -2300],
+				  value: [-34100, -4230],
 				  ...nodeStyle
 				},
 				{
 				  name: 'node',
-				  value: [-34100, -3920],
+				  value: [-34100, -5790],
 				  ...nodeStyle
 				},
 				{
@@ -191,12 +191,12 @@ var chartOptions = function(x,y,deg){
 				}, 
 				{
 				  name: '退仓',
-				  value: [-37900, -2790],
+				  value: [-37900, -2820],
 				  ...tcStyle
 				},
 				{
 				  name: '定子',
-				  value: [-37900, -4290],
+				  value: [-37900, -4230],
 				  ...dzStyle
 				},
 				{
@@ -209,17 +209,17 @@ var chartOptions = function(x,y,deg){
 				
 				{
 				  name: 'node',
-				  value: [-34100, -8970],
+				  value: [-34100, -10940],
 				  ...nodeStyle
 				},
 				{
 				  name: 'node',
-				  value: [-34100, -10420],
+				  value: [-34100, -12380],
 				  ...nodeStyle
 				},
 				{
 				  name: 'node',
-				  value: [-34100, -11850],
+				  value: [-34100, -13750],
 				  ...nodeStyle
 				},
 				{
@@ -229,7 +229,7 @@ var chartOptions = function(x,y,deg){
 				}, 
 				{
 				  name: '退仓',
-				  value: [-37900, -10790],
+				  value: [-37900, -10940],
 				  ...tcStyle
 				},
 				{
@@ -246,17 +246,17 @@ var chartOptions = function(x,y,deg){
 				
 				{
 				  name: 'node',
-				  value: [-34100, -16920],
+				  value: [-34100, -19230],
 				  ...nodeStyle
 				},
 				{
 				  name: 'node',
-				  value: [-34100, -18670],
+				  value: [-34100, -20550],
 				  ...nodeStyle
 				},
 				{
 				  name: 'node',
-				  value: [-34100, -20250],
+				  value: [-34100, -22140],
 				  ...nodeStyle
 				},
 				{
@@ -276,24 +276,24 @@ var chartOptions = function(x,y,deg){
 				},
 				{
 				  name: '转子',
-				  value: [-37900, -21790],
+				  value: [-37900, -22140],
 				  ...zzStyle
 				},
 				
 				
 				{
 				  name: 'node',
-				  value: [-34100, -24920],
+				  value: [-34100, -26930],
 				  ...nodeStyle
 				},
 				{
 				  name: 'node',
-				  value: [-34100, -26420],
+				  value: [-34100, -28360],
 				  ...nodeStyle
 				},
 				{
 				  name: 'node',
-				  value: [-34100, -27920],
+				  value: [-34100, -29790],
 				  ...nodeStyle
 				},
 				{
@@ -320,17 +320,17 @@ var chartOptions = function(x,y,deg){
 				
 				{
 				  name: 'node',
-				  value: [-34100, -32920],
+				  value: [-34100, -34900],
 				  ...nodeStyle
 				},
 				{
 				  name: 'node',
-				  value: [-34100, -34420],
+				  value: [-34100, -36360],
 				  ...nodeStyle
 				},
 				{
 				  name: 'node',
-				  value: [-34100, -35920],
+				  value: [-34100, -37730],
 				  ...nodeStyle
 				},
 				{
@@ -345,21 +345,23 @@ var chartOptions = function(x,y,deg){
 				},
 				{
 				  name: '定子',
-				  value: [-37900, -36260],
+				  value: [-37900, -36360],
 				  ...dzStyle
 				},
 				{
 				  name: '转子',
-				  value: [-37900, -37790],
+				  value: [-37900, -37730],
 				  ...zzStyle
 				},
 
 				// 小车
 				{
-             name: 'agvCar',
+             name: '电量：' + bt + '%',
              value: [x, y],
              label: {
-               show: false
+               show: true,
+               position:'left',
+				    	 offset:[-10,-15]
              },
              symbolSize: [40, 40],
              symbolRotate: deg,
@@ -384,8 +386,8 @@ var chartOptions = function(x,y,deg){
         			coord: [-33980, 380],
         			symbol: 'none'
         		}],
-        		[{
-        			coord: [-34280, -36260],
+        		[{ // 尾部延长线
+        			coord: [-34280, -39730], 
         			symbol: 'none'
         		}, {
         			coord: [-33980, 380],
@@ -409,47 +411,47 @@ var chartOptions = function(x,y,deg){
         		
         		// 1号位线段
         		[{
-        			coord: [-38150, -2790],
+        			coord: [-38150, -2820],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -1000],
+        			coord: [-34100, -2820],
         			symbol: 'none'
         		}],
         		[{
         			coord: [-38150, -4230],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -2300],
+        			coord: [-34100, -4230],
         			symbol: 'none'
         		}],        		
         		[{
         			coord: [-38150, -5790],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -3920],
+        			coord: [-34100, -5790],
         			symbol: 'none'
         		}],        
         		
         		// 2号位线段
         		[{
-        			coord: [-38150, -10790],
+        			coord: [-38150, -10940],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -8970],
+        			coord: [-34100, -10940],
         			symbol: 'none'
         		}],
         		[{
         			coord: [-38150, -12380],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -10420],
+        			coord: [-34100, -12380],
         			symbol: 'none'
         		}],        		
         		[{
         			coord: [-38150, -13750],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -11850],
+        			coord: [-34100, -13750],
         			symbol: 'none'
         		}],             		
         		
@@ -458,21 +460,21 @@ var chartOptions = function(x,y,deg){
         			coord: [-38150, -19230],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -16920],
+        			coord: [-34100, -19230],
         			symbol: 'none'
         		}],
         		[{
         			coord: [-38150, -20550],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -18670],
+        			coord: [-34100, -20550],
         			symbol: 'none'
         		}],        		
         		[{
-        			coord: [-38150, -21790],
+        			coord: [-38150, -22140],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -20250],
+        			coord: [-34100, -22140],
         			symbol: 'none'
         		}],            		
         		// 4号位线段
@@ -480,21 +482,21 @@ var chartOptions = function(x,y,deg){
         			coord: [-38150, -26930],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -24920],
+        			coord: [-34100, -26930],
         			symbol: 'none'
         		}],
         		[{
         			coord: [-38150, -28360],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -26420],
+        			coord: [-34100, -28360],
         			symbol: 'none'
         		}],        		
         		[{
         			coord: [-38150, -29790],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -27920],
+        			coord: [-34100, -29790],
         			symbol: 'none'
         		}],              		
 						// 5号位线段
@@ -502,21 +504,21 @@ var chartOptions = function(x,y,deg){
         			coord: [-38150, -34900],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -32920],
+        			coord: [-34100, -34900],
         			symbol: 'none'
         		}],
         		[{
-        			coord: [-38150, -36260],
+        			coord: [-38150, -36360],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -34420],
+        			coord: [-34100, -36360],
         			symbol: 'none'
         		}],        		
         		[{
-        			coord: [-38150, -37790],
+        			coord: [-38150, -37730],
         			symbol: 'none'
         		}, {
-        			coord: [-34100, -35920],
+        			coord: [-34100, -37730],
         			symbol: 'none'
         		}],      
         		
