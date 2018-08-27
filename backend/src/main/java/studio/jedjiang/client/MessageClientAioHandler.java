@@ -186,13 +186,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 				// 然后取下一条待办任务
 				Task waitingTask = taskService.findNext();
 				if (waitingTask != null) {
-					// 如果待办任务存在, 则发送任务
-					Result r = messageClient.send(waitingTask.getName());
-					if(r.getCode() == 0) {
-						waitingTask.setStatus(Task.TASK_IN_PROCESS);
-						taskService.update(waitingTask);
-						ThreadUtil.safeSleep(TimeUnit.SECONDS.toMillis(1));
-					}
+					handleWaitingTask(waitingTask);
 				} else {
 					// 如果没有可执行的任务，回待命区
 					// 条件：判断任务是否在待命区
@@ -203,6 +197,23 @@ public class MessageClientAioHandler implements ClientAioHandler {
 		} else {
 			// 任务清理后，自动回待命区，根据最后一次上报的任务拿到任务
 			// autoReturnBack(taskStatus.getTaskName());
+			
+			// 没有进行中的任务就查找待办任务
+//			Task waitingTask = taskService.findNext();
+//			handleWaitingTask(waitingTask);
+		}
+	}
+	
+	private void handleWaitingTask(Task waitingTask) throws Exception {
+		// 然后取下一条待办任务
+		if (waitingTask != null) {
+			// 如果待办任务存在, 则发送任务
+			Result r = messageClient.send(waitingTask.getName());
+			if(r.getCode() == 0) {
+				waitingTask.setStatus(Task.TASK_IN_PROCESS);
+				taskService.update(waitingTask);
+				ThreadUtil.safeSleep(TimeUnit.SECONDS.toMillis(1));
+			}
 		}
 	}
 	

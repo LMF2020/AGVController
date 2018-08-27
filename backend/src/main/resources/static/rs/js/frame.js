@@ -130,15 +130,15 @@ layui.use(['layer', 'tasklist'], function() {
 			// 任务是否结束
 			// var isFinished = agvStatus['isFinished']
 			// 车子剩余电量
-			// var battery = agvStatus['battery']
+			var bt = agvStatus['battery']
 			// x 坐标
 			var x = agvStatus['x']
 			// y 坐标
 			var y = agvStatus['y']
 			// 如果有错误, 车子的报错日志
 			// var error = agvStatus['error']
-			console.log("x="+x + ",y=" + y)
-			myChart.setOption(chartOptions(x, y, 0));
+			console.log("x="+x + ",y=" + y + ",b=" + bt)
+			myChart.setOption(chartOptions(x, y, bt, 0));
 		};
 		ws.onclose = function(e) {
 			console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
@@ -161,7 +161,7 @@ layui.use(['layer', 'tasklist'], function() {
 		// 初始化echarts实例
 		myChart = echarts.init(document.getElementById('mainChart'));
 		// 使用刚指定的配置项和数据显示图表。
-		myChart.setOption(chartOptions(-40100, -7330, 0));
+		myChart.setOption(chartOptions(-40100, -7330, 100, 0));
 
 //		function getAngle(x1, y1, x2, y2) {
 //			var x = Math.abs(x1 - x2);

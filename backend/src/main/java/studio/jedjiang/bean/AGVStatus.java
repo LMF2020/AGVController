@@ -71,7 +71,7 @@ public class AGVStatus {
 					me.setTaskName(pair_v);
 				}
 			} else if (pair_k.equals("battery")) { // 电量
-				int powerleft = 60;
+				int powerleft = 100;
 				if(Strings.isNotBlank(pair_v)) {
 					powerleft = Integer.parseInt(pair_v);
 				}
