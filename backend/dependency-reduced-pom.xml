@@ -130,8 +130,10 @@
     </dependency>
   </dependencies>
   <properties>
+    <hutool.version>4.1.9</hutool.version>
     <slf4j.version>1.7.25</slf4j.version>
     <nutzboot.version>2.2.3</nutzboot.version>
+    <tio.version>3.1.8.v20180818-RELEASE</tio.version>
     <log4j.version>1.2.17</log4j.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.12</junit.version>

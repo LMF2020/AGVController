@@ -10,14 +10,26 @@
 		<nutzboot.version>2.2.3</nutzboot.version>
 		<junit.version>4.12</junit.version>
 		<log4j.version>1.2.17</log4j.version>
+		<tio.version>3.1.8.v20180818-RELEASE</tio.version>
+		<hutool.version>4.1.9</hutool.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
+		<dependency>
+		    <groupId>cn.hutool</groupId>
+		    <artifactId>hutool-all</artifactId>
+		    <version>${hutool.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutzboot-starter-jetty</artifactId>
 			<version>${nutzboot.version}</version>
 		</dependency>
+<!-- 		<dependency>
+			<groupId>org.nutz</groupId>
+			<artifactId>nutzboot-starter-quartz</artifactId>
+			<version>${nutzboot.version}</version>
+		</dependency>		 -->
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutzboot-starter-nutz-mvc</artifactId>
@@ -84,13 +96,13 @@
 		<dependency>
 			<groupId>org.t-io</groupId>
 			<artifactId>tio-core</artifactId>
-			<version>3.1.4.v20180726-RELEASE</version>
+			<version>${tio.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.t-io</groupId>
 			<artifactId>tio-websocket-server</artifactId>
-			<version>3.1.4.v20180726-RELEASE</version>
+			<version>${tio.version}</version>
 		</dependency>
 
 	</dependencies>

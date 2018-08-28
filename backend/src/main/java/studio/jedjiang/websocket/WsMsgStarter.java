@@ -6,7 +6,7 @@ import org.tio.server.ServerGroupContext;
 import org.tio.websocket.server.WsServerStarter;
 
 /**
- * WS推送服务端
+ * Websocket推送服务端
  * 
  * @author Jed
  *

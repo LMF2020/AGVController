@@ -26,9 +26,11 @@ public class AGVClient {
 	public static final String NO_TASK = "no_task";
 	
 	// 高于该值表示已充满电
-	public static final int BATTERY_FULL_MAX_VAL = 80;
+	public static int CHARGE_FULL_MAX_VAL = 99;
 	// 低于该值表示需要充电
-	public static final int BATTERY_LOWER_MIN_VAL= 20;
+	public static int CHARGE_LOWER_MIN_VAL= 20;
+	// 电量高于该值可以继续接任务
+	public static int CHARGE_RECOVER_MIN_VAL = 40;
 	
 	// 定子，转子，返仓
 	public static final String DZ_NUM = "1";

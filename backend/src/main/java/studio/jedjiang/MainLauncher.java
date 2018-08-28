@@ -71,6 +71,8 @@ public class MainLauncher {
 			appStarter.start();
 			// 配置websocket服务|任务服务
 			messageClient.initService(appStarter.getServerGroupContext(), taskService);
+			// 初始化系统配置
+			messageClient.initConfig();
 			// 连接服务器
 			messageClient.connect();
 

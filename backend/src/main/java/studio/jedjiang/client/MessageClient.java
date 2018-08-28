@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.tio.client.ClientChannelContext;
@@ -66,7 +67,7 @@ public class MessageClient {
 	}
 	
 	/**
-	 * 服务配置(websocket/bettery)
+	 * 初始化服务 (websocket/bettery)
 	 * @param wsGroupCtx
 	 */
 	public void initService(ServerGroupContext wsGroupCtx, TaskService taskService) {
@@ -75,6 +76,25 @@ public class MessageClient {
 		messageClientAioHandler.setTaskService(taskService);
 	}
 
+	/**
+	 * 初始化系统配置
+	 */
+	public void initConfig() {
+		String chargeFullMaxVal = conf.get("charge.full_max_val");
+		String chargeLowerMinVal = conf.get("charge.lower_min_val");
+		String chargeRecoverMinVal = conf.get("charge.recover_min_val");
+
+		if (Strings.isNotBlank(chargeFullMaxVal) && Strings.isNumber(chargeFullMaxVal)) {
+			AGVClient.CHARGE_FULL_MAX_VAL = Integer.parseInt(chargeFullMaxVal);
+		}
+		if (Strings.isNotBlank(chargeLowerMinVal) && Strings.isNumber(chargeLowerMinVal)) {
+			AGVClient.CHARGE_LOWER_MIN_VAL = Integer.parseInt(chargeLowerMinVal);
+		}
+		if (Strings.isNotBlank(chargeRecoverMinVal) && Strings.isNumber(chargeRecoverMinVal)) {
+			AGVClient.CHARGE_RECOVER_MIN_VAL = Integer.parseInt(chargeRecoverMinVal);
+		}
+	}
+	
 	/**
 	 * 恢复执行任务
 	 * 
