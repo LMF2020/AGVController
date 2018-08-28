@@ -25,11 +25,11 @@
 			<artifactId>nutzboot-starter-jetty</artifactId>
 			<version>${nutzboot.version}</version>
 		</dependency>
-<!-- 		<dependency>
+ 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutzboot-starter-quartz</artifactId>
 			<version>${nutzboot.version}</version>
-		</dependency>		 -->
+		</dependency>
 		<dependency>
 			<groupId>org.nutz</groupId>
 			<artifactId>nutzboot-starter-nutz-mvc</artifactId>
