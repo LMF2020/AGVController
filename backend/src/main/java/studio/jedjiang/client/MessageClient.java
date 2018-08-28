@@ -17,6 +17,9 @@ import org.tio.core.Node;
 import org.tio.core.Tio;
 import org.tio.server.ServerGroupContext;
 
+import cn.hutool.core.lang.Console;
+import cn.hutool.cron.CronUtil;
+import cn.hutool.cron.task.Task;
 import studio.jedjiang.bean.AGVStatus;
 import studio.jedjiang.bean.Result;
 import studio.jedjiang.service.TaskService;
@@ -68,12 +71,32 @@ public class MessageClient {
 	
 	/**
 	 * 初始化服务 (websocket/bettery)
-	 * @param wsGroupCtx
 	 */
 	public void initService(ServerGroupContext wsGroupCtx, TaskService taskService) {
 		messageClientAioHandler.setWsGroupCtx(wsGroupCtx);
 		messageClientAioHandler.setMessageClient(this);
 		messageClientAioHandler.setTaskService(taskService);
+		initScheduleTask(taskService);
+	}
+	
+	/**
+	 * 启动定时服务
+	 */
+	private void initScheduleTask(TaskService taskService) {
+		CronUtil.schedule(conf.get("schedule.query_todo_task"), new Task() {
+			@Override
+			public void execute() {
+				try {
+					// 定时任务判断当前是否有待办任务
+					AGVClient.hasNextTask = taskService.findNext() != null;
+				} catch (Exception e) {
+					log.error("定时查询待办任务失败");
+				}
+			}
+		});
+		// 支持秒级别定时任务
+		CronUtil.setMatchSecond(true);
+		CronUtil.start();
 	}
 
 	/**

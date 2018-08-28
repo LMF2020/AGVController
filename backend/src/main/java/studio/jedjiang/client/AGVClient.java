@@ -22,6 +22,7 @@ public class AGVClient {
 
 	// 缓存任务列表(后期采用LRU模型, 如果是多任务需要引入memcached)
 	public static AGVStatusCacheClient agvCacheClient = AGVStatusCacheClient.getInstance();
+	public static boolean hasNextTask = false;
 
 	public static final String NO_TASK = "no_task";
 	

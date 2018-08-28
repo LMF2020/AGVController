@@ -113,10 +113,14 @@ public class MessageClientAioHandler implements ClientAioHandler {
 				return;
 			}
 
-			// 如果是充电任务，检查充电是否完成
+			// 如果是充电任务:
+			// 1. 如果电量达到99%，结束任务
+			// 2. 如果电量达到40%并且有待办任务，结束任务
 			if(taskStatus.getTaskName().replace(".xml", "").trim().endsWith("71")) {
 				int battery = taskStatus.getBattery();
-				if(battery >= AGVClient.CHARGE_FULL_MAX_VAL) {
+				boolean isChargeFull = battery >= AGVClient.CHARGE_FULL_MAX_VAL;
+				boolean isChargeReachConditionWithTask = battery >= 40 && AGVClient.hasNextTask;
+				if(isChargeFull || isChargeReachConditionWithTask) {
 					taskStatus.setFinished(true);
 				}
 			}
