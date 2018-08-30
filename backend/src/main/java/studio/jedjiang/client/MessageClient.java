@@ -160,22 +160,22 @@ public class MessageClient {
 		
 		taskName = AGVClient.createSendCommad(taskName);
 		if (clientChannelContext == null || clientChannelContext.isClosed) {
-			log.error("正在发送命令：但服务器尚未连接成功");
-			return Result.error("服务器连接失败");
+			log.error("无法发送命令，服务器连接中断");
+			return Result.error("服务器连接中断");
 		}
 
 		// 任务没结束不能发送新任务
 		AGVStatus status = AGVStatusCacheClient.getInstance().get(AGVClient.ONE_AVG_ID);
 		if(!status.isFinished()) {
-			log.error("车载任务尚未结束： " + status.getTaskName());
-			return Result.error("车载任务尚未结束：" + status.getTaskName() + "，设备电量：" + status.getBattery());
+			log.errorf("无法发送新任务，有任务进行中：%s ", status.getTaskName());
+			return Result.error("无法发送新任务，有任务进行中：%s" + status.getTaskName() + "，设备电量：" + status.getBattery());
 		}
 
 		MessagePacket packet = new MessagePacket();
 		try {
 			packet.setBody(taskName.getBytes(MessagePacket.CHARSET));
 		} catch (UnsupportedEncodingException e) {
-			return Result.error("任务发送失败，失败原因：" + e.getMessage());
+			return Result.error("任务发送失败：" + e.getMessage());
 		}
 		boolean success = Tio.send(clientChannelContext, packet);
 		

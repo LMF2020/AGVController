@@ -132,10 +132,10 @@ public class MessageClientAioHandler implements ClientAioHandler {
 				boolean isChargeReadyToAcceptTask = (battery >= AGVClient.CHARGE_RECOVER_MIN_VAL) && AGVClient.hasNextTask;
 				if (isChargeFull || isChargeReadyToAcceptTask) {
 					if (isChargeFull) {
-						log.infof("电量已充满,当前电量：%d,充满电量：%d", battery, AGVClient.CHARGE_FULL_MAX_VAL);
+						log.infof("电量已充满,当前电量：%d,饱和电量：%d", battery, AGVClient.CHARGE_FULL_MAX_VAL);
 					}
 					if (isChargeReadyToAcceptTask) {
-						log.infof("电量已达标，将继续执行任务，当前电量：%d,达标电量：%d", battery, AGVClient.CHARGE_RECOVER_MIN_VAL);
+						log.infof("电量已达标，将继续执行待办任务，当前电量：%d,任务达标电量：%d", battery, AGVClient.CHARGE_RECOVER_MIN_VAL);
 					}
 					taskStatus.setFinished(true);
 				}
@@ -151,7 +151,6 @@ public class MessageClientAioHandler implements ClientAioHandler {
 					} finally {
 						lock.unlock();
 					}
-					
 				}
 			}
 
@@ -175,7 +174,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 				
 				// 电量小于20%需要充电
 				if(taskStatus.getBattery() < AGVClient.CHARGE_LOWER_MIN_VAL){
-					log.infof("电量过低需要充电:%s", taskStatus.getTaskName());
+					log.infof("当前任务完成:%s，但电量低于临界值，准备发送充电任务", taskStatus.getTaskName());
 					String chargeTask = AGVClient.getFromSiteToChargeSite(onGoingTask.getName());
 					handleChargeTask(chargeTask, taskStatus.getBattery());
 					// \\\\\充电情况处理完毕，返回
@@ -194,18 +193,16 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			}
 
 		} else {
-			// 任务完成后，但没有查到进行中的任务，走这个逻辑
-			// 假设1： 待命区充电逻辑
-			// 没有下个任务，并且电量低于最小值去充电
+			// 任务完成后，且没有下个任务，当电量低于临界值，就去充电
 			String finishedTaskName = taskStatus.getTaskName().replace(".xml", "").trim();
 			// 是否在待命区
 			boolean isStartSite = finishedTaskName.endsWith("00") || finishedTaskName.endsWith("70");
-			// 电量是否低于阈值
+			// 电量是否低于临界值
 			boolean isLowBettery = taskStatus.getBattery() < AGVClient.CHARGE_LOWER_MIN_VAL;
-			log.infof("结束任务:%s, 是否待命区:" + isStartSite + ",是否需要充电:" + isLowBettery + ", 剩余电量：%d, 最低电量：%d", finishedTaskName, taskStatus.getBattery(), AGVClient.CHARGE_LOWER_MIN_VAL);
+			log.infof("已完成任务:%s, 是否在待命区:" + isStartSite + ",是否需要充电:" + isLowBettery + ", 设备电量：%d, 低电量临界值：%d", finishedTaskName, taskStatus.getBattery(), AGVClient.CHARGE_LOWER_MIN_VAL);
 			if(!AGVClient.hasNextTask && isStartSite && isLowBettery){
-				log.infof("待命区 -> 充电桩: %s", finishedTaskName);
 				// 可以安排去充电了
+				log.infof("设备在待命区，电量低于临界值，准备发送充电任务，当前任务:%s", taskStatus.getTaskName());
 				String chargeTask = AGVClient.getFromSiteToChargeSite(finishedTaskName);
 				handleChargeTask(chargeTask, taskStatus.getBattery());
 			}
@@ -215,6 +212,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 	private void handleWaitingTask(Task waitingTask) throws Exception {
 		// 然后取下一条待办任务
 		if (waitingTask != null) {
+			log.infof("正在发送...待办任务：%s", waitingTask.getName());
 			// 如果待办任务存在, 则发送任务
 			Result r = messageClient.send(waitingTask.getName());
 			if(r.getCode() == 0) {
@@ -228,8 +226,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 	private void handleChargeTask(String chargeTask, int betteryLeft) throws Exception{
 		// 1，新增充电任务
 		taskService.addByStatus(chargeTask, Task.TASK_IN_PROCESS);
-		log.infof("新增充电任务:%s, 当前电量:%d", chargeTask, betteryLeft);
-		
+		log.infof("正在发送...充电任务:%s, 当前电量:%d", chargeTask, betteryLeft);
 		// 2，发送新增的充电任务
 		Result r = messageClient.send(chargeTask);
 		if(r.getCode() == 0) {
@@ -254,6 +251,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 		
 		// 如果不在待命区, 则回待命区（定子→待命区，转子→待命区，充电 → 待命区）
 		String startSiteTask= AGVClient.getCmdFromSiteToBackSite(finishedTaskName);
+		log.infof("正在发送...待命区任务:%s", startSiteTask);
 		Result r = messageClient.send(startSiteTask);
 		try {
 			if(r.getCode() == 0) {
@@ -262,7 +260,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			}
 		} catch (Exception e) {
 			// e.printStackTrace();
-			log.errorf("错误：没有下个任务, 自动回待命区, 前一次任务 : %s", taskName);
+			log.errorf("发生错误：没有任务了, 自动回待命区, 前一次任务 : %s", taskName);
 		}
 	
 	}

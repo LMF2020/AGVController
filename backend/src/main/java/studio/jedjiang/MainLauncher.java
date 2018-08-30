@@ -164,7 +164,7 @@ public class MainLauncher {
 				String lastTaskName = lastTask.getName();
 				// 后两位就是起始站点
 				fromSite = lastTaskName.substring(lastTaskName.length() - 2);
-				log.infof("前一个待办任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
+				log.infof("根据历史待办任务顺序:%s, 算出起始站点:%s", lastTaskName, fromSite);
 				find = true;
 			}
 			
@@ -175,7 +175,7 @@ public class MainLauncher {
 					String lastTaskName = lastTask.getName();
 					// 后两位就是起始站点
 					fromSite = lastTaskName.substring(lastTaskName.length() - 2);
-					log.infof("有执行中任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
+					log.infof("有进行中的任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
 					find = true;
 				}
 			}
@@ -187,7 +187,7 @@ public class MainLauncher {
 					String lastTaskName = lastTask.getName();
 					// 后两位就是起始站点
 					fromSite = lastTaskName.substring(lastTaskName.length() - 2);
-					log.infof("前一个完成的任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
+					log.infof("根据已完成任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
 					find = true;
 				}
 			}
@@ -202,22 +202,21 @@ public class MainLauncher {
 						
 						if(AGVClient.isTaskValid(lastTaskName)) {
 							fromSite = lastTaskName.replace(".xml", "").substring(lastTaskName.length() - 2);
-							log.infof("发现服务器最后一次上报的任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
+							log.infof("发现服务器最后一次任务是:%s, 算出起始站点:%s", lastTaskName, fromSite);
 							find = true;
 						}
 					}
 				} catch (Exception e) {
-					log.error("无法获取服务器最后一次上报的任务");
+					log.error("无法获取服务器最后一次任务");
 				} finally {
 					ThreadUtil.safeSleep(500);
 					tryTimes--;
 				}
 			}
-
 			
 			// 5. 此时认为车子在待命区(1)
 			if(!find){
-				log.info("找不到任务，设置起始站点：00");
+				log.info("无法分析获取任务的起始点，设置起始站点：00");
 				fromSite = "00";
 			}
 			
@@ -228,19 +227,18 @@ public class MainLauncher {
 			String _thisTask = prefix + fromSite + targetSite;
 			// 添加任务 (到数据库)
 			taskService.add(_thisTask);
-			log.infof("任务:%s, 已添加入库", _thisTask);
 
-			// 检查数据库是否有执行中的任务
+			// 检查数据库是否有进行中的任务
 			Task ongoingTask = taskService.getOngoingTask();
-			// 如果没有执行中的任务，则发送待办任务
+			// 如果没有进行中的任务，则发送待办任务
 			if(ongoingTask == null){
 				Task nextTask = taskService.findNext();
-				// 因为此方法就是添加待办任务，所以数据库必然有一个待办任务，而且就是 _thisTask = (nextTask)
+				// 数据库保证至少有一个待办任务，有可能是刚添加的，也有可能是后来添加的
+				log.infof("立即发送添加的任务：%s", nextTask.getName());
 				Result r = messageClient.send(nextTask.getName());
 				if(r.getCode() == 0) {
 					nextTask.setStatus(Task.TASK_IN_PROCESS);
 					taskService.update(nextTask);
-					log.infof("没有执行中的任务, 发送任务：%s", nextTask.getName());
 				}
 			}
 
