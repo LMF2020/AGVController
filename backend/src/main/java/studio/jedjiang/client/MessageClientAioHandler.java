@@ -24,14 +24,18 @@ import studio.jedjiang.bean.AGVStatus;
 import studio.jedjiang.bean.Result;
 import studio.jedjiang.bean.Task;
 import studio.jedjiang.service.TaskService;
-
+/**
+ * 消息处理核心逻辑
+ * @author Jed
+ *
+ */
 @IocBean
 public class MessageClientAioHandler implements ClientAioHandler {
 
 	private static final Log log = Logs.get();
 	private static MessagePacket heartbeatPacket = new MessagePacket();
 	
-	Lock lock = new ReentrantLock();
+	private Lock lock = new ReentrantLock();
 
 	// 配置websocket服务
 	private ServerGroupContext wsGroupCtx;
@@ -116,11 +120,23 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			// 如果是充电任务:
 			// 1. 如果电量达到99%，结束任务
 			// 2. 如果电量达到40%并且有待办任务，结束任务
-			if(taskStatus.getTaskName().replace(".xml", "").trim().endsWith("71")) {
+			if (taskStatus.getTaskName().replace(".xml", "").trim().endsWith("71")) {
+				
+				// 3. 充电任务不会上报结束状态，结束状态只代表站点->充电桩任务结束
+				if(taskStatus.isFinished()){
+					taskStatus.setFinished(false);
+				}
+				
 				int battery = taskStatus.getBattery();
 				boolean isChargeFull = battery >= AGVClient.CHARGE_FULL_MAX_VAL;
-				boolean isChargeReachConditionWithTask = battery >= 40 && AGVClient.hasNextTask;
-				if(isChargeFull || isChargeReachConditionWithTask) {
+				boolean isChargeReadyToAcceptTask = (battery >= AGVClient.CHARGE_RECOVER_MIN_VAL) && AGVClient.hasNextTask;
+				if (isChargeFull || isChargeReadyToAcceptTask) {
+					if (isChargeFull) {
+						log.infof("电量已充满,当前电量：%d,充满电量：%d", battery, AGVClient.CHARGE_FULL_MAX_VAL);
+					}
+					if (isChargeReadyToAcceptTask) {
+						log.infof("电量已达标，将继续执行任务，当前电量：%d,达标电量：%d", battery, AGVClient.CHARGE_RECOVER_MIN_VAL);
+					}
 					taskStatus.setFinished(true);
 				}
 			}
@@ -159,30 +175,9 @@ public class MessageClientAioHandler implements ClientAioHandler {
 				
 				// 电量小于20%需要充电
 				if(taskStatus.getBattery() < AGVClient.CHARGE_LOWER_MIN_VAL){
-					
-					// 1，新增充电任务
+					log.infof("电量过低需要充电:%s", taskStatus.getTaskName());
 					String chargeTask = AGVClient.getFromSiteToChargeSite(onGoingTask.getName());
-					taskService.addByStatus(chargeTask, Task.TASK_IN_PROCESS);
-					
-					// 2，发送新增的充电任务
-					Result r = messageClient.send(chargeTask);
-					if(r.getCode() == 0) {
-						// TDDO: 发送成功后，清空所有的待办任务
-						taskService.clearTodo();
-						ThreadUtil.safeSleep(TimeUnit.SECONDS.toMillis(1));
-					}
-					
-					
-//					// 3，如果发现有下个任务，变更下个任务： 充电站→目标站点
-//					Task nextTask = taskService.findNext();
-//					if(nextTask != null){
-//						// 任务变更： 充电站→目标站点
-//						String nextTaskName = nextTask.getName();
-//						nextTask.setName(nextTaskName.substring(0,1) + "71" + nextTaskName.substring(3));
-//						taskService.update(nextTask);
-//						
-//					}
-					
+					handleChargeTask(chargeTask, taskStatus.getBattery());
 					// \\\\\充电情况处理完毕，返回
 					return;
 				}
@@ -199,12 +194,21 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			}
 
 		} else {
-			// 任务清理后，自动回待命区，根据最后一次上报的任务拿到任务
-			// autoReturnBack(taskStatus.getTaskName());
-			
-			// 没有进行中的任务就查找待办任务
-//			Task waitingTask = taskService.findNext();
-//			handleWaitingTask(waitingTask);
+			// 任务完成后，但没有查到进行中的任务，走这个逻辑
+			// 假设1： 待命区充电逻辑
+			// 没有下个任务，并且电量低于最小值去充电
+			String finishedTaskName = taskStatus.getTaskName().replace(".xml", "").trim();
+			// 是否在待命区
+			boolean isStartSite = finishedTaskName.endsWith("00") || finishedTaskName.endsWith("70");
+			// 电量是否低于阈值
+			boolean isLowBettery = taskStatus.getBattery() < AGVClient.CHARGE_LOWER_MIN_VAL;
+			log.infof("结束任务:%s, 是否待命区:" + isStartSite + ",是否需要充电:" + isLowBettery + ", 剩余电量：%d, 最低电量：%d", finishedTaskName, taskStatus.getBattery(), AGVClient.CHARGE_LOWER_MIN_VAL);
+			if(!AGVClient.hasNextTask && isStartSite && isLowBettery){
+				log.infof("待命区 -> 充电桩: %s", finishedTaskName);
+				// 可以安排去充电了
+				String chargeTask = AGVClient.getFromSiteToChargeSite(finishedTaskName);
+				handleChargeTask(chargeTask, taskStatus.getBattery());
+			}
 		}
 	}
 	
@@ -221,6 +225,20 @@ public class MessageClientAioHandler implements ClientAioHandler {
 		}
 	}
 	
+	private void handleChargeTask(String chargeTask, int betteryLeft) throws Exception{
+		// 1，新增充电任务
+		taskService.addByStatus(chargeTask, Task.TASK_IN_PROCESS);
+		log.infof("新增充电任务:%s, 当前电量:%d", chargeTask, betteryLeft);
+		
+		// 2，发送新增的充电任务
+		Result r = messageClient.send(chargeTask);
+		if(r.getCode() == 0) {
+			// TDDO: 发送成功后，清空所有的待办任务
+			taskService.clearTodo();
+			ThreadUtil.safeSleep(TimeUnit.SECONDS.toMillis(1));
+		}
+		// \\\\\充电情况处理完毕，返回
+	}
 	
 	// 没有任务自动回待命区
 	private void autoReturnBack(String taskName) {
@@ -244,7 +262,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			}
 		} catch (Exception e) {
 			// e.printStackTrace();
-			log.errorf("错误：没有任务, 自动回待命区, 前一次任务 : %s", taskName);
+			log.errorf("错误：没有下个任务, 自动回待命区, 前一次任务 : %s", taskName);
 		}
 	
 	}

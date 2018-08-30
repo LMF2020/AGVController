@@ -22,7 +22,7 @@ public class AGVStatus {
 	// 车子编号
 	private String avgCode;
 	private String taskName;
-	private int battery;
+	private int battery = -1;
 	private boolean isFinished;
 	private String error;
 	
@@ -71,11 +71,9 @@ public class AGVStatus {
 					me.setTaskName(pair_v);
 				}
 			} else if (pair_k.equals("battery")) { // 电量
-				int powerleft = 100;
-				if(Strings.isNotBlank(pair_v)) {
-					powerleft = Integer.parseInt(pair_v);
+				if(isRequireSetBattery(me) && Strings.isNotBlank(pair_v) && Strings.isNumber(pair_v)){
+					me.setBattery(Integer.parseInt(pair_v));
 				}
-				me.setBattery(powerleft);
 			} else if (pair_k.equals("task_isfinished")) {
 				me.setFinished("1".equals(pair_v));
 			} else if (pair_k.equals("task_error")) {
@@ -86,8 +84,23 @@ public class AGVStatus {
 				me.setY(pair_v);
 			}
 		}
+		
+		// 电量为空：，不合法
+		if(me.getBattery() == -1){
+			return null;
+		}
 
 		return me;
+	}
+	
+	/**
+	 * 检查是否需要设置电量
+	 */
+	private static boolean isRequireSetBattery(AGVStatus me) {
+		if(me.getBattery() == -1){
+			return true;
+		}
+		return false;
 	}
 
 	/**

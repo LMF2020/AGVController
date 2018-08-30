@@ -1,6 +1,5 @@
 package studio.jedjiang;
 
-import studio.jedjiang.bean.AGVStatus;
 import studio.jedjiang.client.AGVClient;
 
 public class MainLauncherTest {

@@ -17,9 +17,6 @@ import org.tio.core.Node;
 import org.tio.core.Tio;
 import org.tio.server.ServerGroupContext;
 
-import cn.hutool.core.lang.Console;
-import cn.hutool.cron.CronUtil;
-import cn.hutool.cron.task.Task;
 import studio.jedjiang.bean.AGVStatus;
 import studio.jedjiang.bean.Result;
 import studio.jedjiang.service.TaskService;
@@ -56,7 +53,7 @@ public class MessageClient {
 	private ClientChannelContext clientChannelContext = null;
 
 	/**
-	 * 连接服务器
+	 * 连接AGV服务器
 	 * @throws Exception
 	 */
 	public void connect() throws Exception {
@@ -65,8 +62,9 @@ public class MessageClient {
 		clientGroupContext.setHeartbeatTimeout(AGVClient.TIMEOUT);
 		tioClient = new TioClient(clientGroupContext);
 		clientChannelContext = tioClient.connect(serverNode);
-
-		log.info("正在尝试连接服务器：" + conf.get("io.socket.host") + ":" + conf.getInt("io.socket.port"));
+		if(!clientChannelContext.isClosed){
+			log.info("连接服务器成功：" + conf.get("io.socket.host") + ":" + conf.getInt("io.socket.port"));
+		}
 	}
 	
 	/**
@@ -95,6 +93,8 @@ public class MessageClient {
 		if (Strings.isNotBlank(chargeRecoverMinVal) && Strings.isNumber(chargeRecoverMinVal)) {
 			AGVClient.CHARGE_RECOVER_MIN_VAL = Integer.parseInt(chargeRecoverMinVal);
 		}
+		
+		log.infof("系统配置:饱和电量：%d,最低电量：%d,任务电量:%d", AGVClient.CHARGE_FULL_MAX_VAL, AGVClient.CHARGE_LOWER_MIN_VAL, AGVClient.CHARGE_RECOVER_MIN_VAL);
 	}
 	
 	/**

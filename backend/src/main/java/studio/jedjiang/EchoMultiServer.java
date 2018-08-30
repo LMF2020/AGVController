@@ -1,8 +1,6 @@
 package studio.jedjiang;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,7 +21,7 @@ public class EchoMultiServer {
 	private static class EchoClientHandler extends Thread {
 		private Socket clientSocket;
 		private PrintWriter out;
-		private BufferedReader in;
+		// private BufferedReader in;
 
 		public EchoClientHandler(Socket socket) {
 			this.clientSocket = socket;

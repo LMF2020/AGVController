@@ -20,7 +20,7 @@ public class AGVClient {
 	public static final String REC_CMD_PATTERN = "cmd=pause;pauseStat=0";
 	public static final String DEFAULT_DB_TASK_ID = "AGVUniqueId_dde94b0e9e87f376efd80c30";
 
-	// 缓存任务列表(后期采用LRU模型, 如果是多任务需要引入memcached)
+	// 缓存：保存最后一次任务对象
 	public static AGVStatusCacheClient agvCacheClient = AGVStatusCacheClient.getInstance();
 	public static boolean hasNextTask = false;
 
@@ -96,7 +96,7 @@ public class AGVClient {
 		}
 		
 		// 检测任务名是否合法
-		if(isTaskValid(me.getTaskName())) {
+		if(me!=null && isTaskValid(me.getTaskName())) {
 			return null;
 		}
 		
@@ -138,6 +138,8 @@ public class AGVClient {
 	 */
 	public static String getFromSiteToChargeSite(String fromSite){
 		fromSite = fromSite.replace(".xml", "").trim().substring(fromSite.length() -2);
+		// fix: 新增充电任务的时候有可能需要改变起始站点
+		fromSite = updateFromSite(fromSite);
 		return "O" + fromSite + "71";
 	}
 	
