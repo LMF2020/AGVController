@@ -7,7 +7,7 @@
 	<title>安徽宇锋智能</title>
 	<link rel="stylesheet" href="/rs/lib/bootstrap/css/bootstrap.min.css">
 	<link rel="stylesheet" href="/rs/lib/open-iconic/font/css/open-iconic-bootstrap.min.css"/>
-	<link rel="stylesheet" href="/rs/lib/layui/css/layui.css" />
+	<link rel="stylesheet" href="/rs/lib/layui_v2.4.5/css/layui.css" />
 	<link rel="stylesheet" href="/rs/css/frame.css" />
 </head>
 
@@ -33,21 +33,41 @@
 										<div class="col-12">
 										<form>
 											<div class="form-group">
-												<label for="exampleInputEmail1">位置</label>
-												<select class="form-control form-control-sm" id="position" placeholder="位置">
-													<option value="1">1号位</option>
-													<option value="2">2号位</option>
-													<option value="3">3号位</option>
-													<option value="4">4号位</option>
-													<option value="5">5号位</option>
+												<label for="startRoute">起始线路</label>
+												<select class="form-control form-control-sm" id="startRoute">
+													<option value="1">1号仓</option>
+													<option value="2">2号仓</option>
+													<option value="3">3号仓</option>
+													<option value="4">4号仓</option>
+													<option value="5">5号仓</option>
+													<option value="6">6号仓</option>
+													<option value="7">7号仓</option>
 												</select>
 											</div>
 											<div class="form-group">
-												<label for="exampleInputEmail1">分类</label>
-												<select class="form-control form-control-sm" id="catalog" placeholder="分类">
-													<option value="1">定子</option>
-													<option value="2">转子</option>
-													<option value="0">返仓</option>
+												<select class="form-control form-control-sm" id="startRouteSeat">
+													<option value="0">0号位</option>
+													<option value="1">1号位</option>
+													<option value="2">2号位</option>
+												</select>
+											</div>
+											<div class="form-group">
+												<label for="endRoute">结束线路</label>
+												<select class="form-control form-control-sm" id="endRoute">
+													<option value="1">1号仓</option>
+													<option value="2">2号仓</option>
+													<option value="3">3号仓</option>
+													<option value="4">4号仓</option>
+													<option value="5">5号仓</option>
+													<option value="6">6号仓</option>
+													<option value="7">7号仓</option>
+												</select>
+											</div>
+											<div class="form-group">
+												<select class="form-control form-control-sm" id="endRouteSeat">
+													<option value="0">0号位</option>
+													<option value="1">1号位</option>
+													<option value="2">2号位</option>
 												</select>
 											</div>
 											<!--
@@ -62,15 +82,22 @@
 											-->
 											<div class="form-group form-row">
 												<div class="col-6">
-													<button type="button" id='add_task' class="btn btn-sm btn-block btn-outline-primary">添加任务</button>
+													<button type="button" id='btn_add_task' 
+													class="btn btn-sm btn-block btn-outline-primary">发货</button>
 												</div>
 												<div class="col-6">
-													<button type="button" id='clear_task' class="btn btn-sm btn-block btn-outline-info">重置任务</button>
+													<button type="button" id='btn_ret_task' 
+													class="btn btn-sm btn-block btn-outline-primary">返仓</button>
 												</div>
 											</div>
 											<div class="form-group form-row">
 												<div class="col-6">
-													<button type="button" id='clear_todo_task' class="btn btn-sm btn-block btn-outline-primary">清空待办任务</button>
+													<button type="button" id='clear_task' 
+													class="btn btn-sm btn-block btn-outline-info">重置任务</button>
+												</div>
+												<div class="col-6">
+													<button type="button" id='clear_todo_task' 
+													class="btn btn-sm btn-block btn-outline-primary">清空待办</button>
 												</div>
 											</div>
 										</form>
@@ -80,7 +107,7 @@
 								<div class="col-12 ">
 										<div class="docker w-100">
 												<span>任务列表</span>
-												<table id="tasklist" lay-filter="tasklist"></table>
+												<table id="tasklist" lay-filter="test"></table>
 										</div>
 								</div>
 							</div>
@@ -93,20 +120,19 @@
 
 	</div>
 
-	<script type="text/html" id="taskbarUI">
+	<script type="text/html" id="mybar">
 		{{#  if(d.status === 0){ }}
-		<i class="oi oi-delete" lay-event="del" title="删除" aria-hidden="true" style="font-size: 23px; color: #1E9FFF;></i>
+		<span class="demoSpan1" lay-event="del" title="删除" style="height:30px; width:30px; display:block; position:relative;"></span>
 		{{#  } }}
 	</script>
 
 	<script src="/rs/lib/jquery.min.js"></script>
 	<script src="/rs/lib/bootstrap/js/bootstrap.min.js"></script>
 	<script src="/rs/lib/layer/layer.js"></script>
-	<script src="/rs/lib/layui/layui.js"></script>
+	<script src="/rs/lib/layui_v2.4.5/layui.js"></script>
 	<script src="/rs/lib/echarts.min.js"></script>
 	<script src="/rs/js/com.js"></script>
-	<script src="/rs/js/data.js"></script>
-	<script src="/rs/js/chartOpt.js"></script>
+	<script src="/rs/js/chartOptV2.js"></script>
 	<script src="/rs/js/frame.js"></script>
 	<script src="/rs/js/responsable.js"></script>
 </body>

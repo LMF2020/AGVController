@@ -92,16 +92,16 @@ public class MainLauncher {
 
 	}
 	
-	@Filters({@By(type = CrossOriginFilter.class), @By(type=LicenseProcessor.class)})
-	@At("/cmd/task/create/?")
-	@Ok("json")
-	public Result sendCommand(String command) {
-		try {
-			return messageClient.send(command);
-		} catch (Exception e) {
-			return Result.error(e.getMessage());
-		}
-	}
+//	@Filters({@By(type = CrossOriginFilter.class), @By(type=LicenseProcessor.class)})
+//	@At("/cmd/task/create/?")
+//	@Ok("json")
+//	public Result sendCommand(String command) {
+//		try {
+//			return messageClient.send(command);
+//		} catch (Exception e) {
+//			return Result.error(e.getMessage());
+//		}
+//	}
 
 	@Filters(@By(type = CrossOriginFilter.class))
 	@At("/cmd/task/end")
@@ -140,11 +140,12 @@ public class MainLauncher {
 
 	// 添加任务并检查是否需要发送任务
 	@Filters({@By(type = CrossOriginFilter.class), @By(type=LicenseProcessor.class)})
-	@At("/task/add/?/?")
+	@At("/task/add/?")
 	@Ok("json") // site - 站点(1-5), type - 返仓,转子,定子
-	public Result addTask(String site, String type) {
+	public Result addTask(String taskName) {
 		try {
 			
+			// 任务分解 = 动作(1位) + 起始仓库(2位) + 目标仓库(2位)
 			// 逻辑： 1.优先查找待办任务
 				//  2. 若找不到，查找进行中的任务，
 				//  3. 若找不到，查最新完成的任务
@@ -153,46 +154,45 @@ public class MainLauncher {
 				//  6. 取任务并发送
 				//  7. 更新任务状态
 			
-			// 获取前缀 D/Z/F
-			String prefix = AGVClient.getPrefixByType(type);
+			String prefix = String.valueOf(taskName.charAt(0));
 			String fromSite = "";
-			String targetSite = site + type;
+			String targetSite = taskName.substring(1);
 			boolean find = false;
 			// 1. 查找前一个待办任务
-			Task lastTask = taskService.findNext();
-			if(lastTask != null){
-				String lastTaskName = lastTask.getName();
-				// 后两位就是起始站点
-				fromSite = lastTaskName.substring(lastTaskName.length() - 2);
-				log.infof("根据历史待办任务顺序:%s, 算出起始站点:%s", lastTaskName, fromSite);
+			Task prevTask = taskService.findNext();
+			if(prevTask != null){
+				String prevTaskName = prevTask.getName();
+				// 后(2)位作为起始点
+				fromSite = prevTaskName.substring(prevTaskName.length() - 2);
+				log.infof("发现有待办任务:%s, 计算起始点:%s", prevTaskName, fromSite);
 				find = true;
 			}
 			
-			// 2. 查找是否有执行中的任务
+			// 2. 查找是否有进行中的任务
 			if(!find){
-				lastTask = taskService.getOngoingTask();
-				if(lastTask!=null){
-					String lastTaskName = lastTask.getName();
-					// 后两位就是起始站点
+				prevTask = taskService.getOngoingTask();
+				if(prevTask!=null){
+					String lastTaskName = prevTask.getName();
+					// 后(2)位作为起始点
 					fromSite = lastTaskName.substring(lastTaskName.length() - 2);
-					log.infof("有进行中的任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
+					log.infof("发现有进行中的任务:%s, 计算起始点:%s", lastTaskName, fromSite);
 					find = true;
 				}
 			}
 			
 			// 3. 查找前一个最新完成的任务
 			if(!find){
-				lastTask = taskService.getLatestFinished();
-				if(lastTask!=null){
-					String lastTaskName = lastTask.getName();
+				prevTask = taskService.getLatestFinished();
+				if(prevTask!=null){
+					String lastTaskName = prevTask.getName();
 					// 后两位就是起始站点
 					fromSite = lastTaskName.substring(lastTaskName.length() - 2);
-					log.infof("根据已完成任务:%s, 算出起始站点:%s", lastTaskName, fromSite);
+					log.infof("发现已完成任务:%s, 计算起始点:%s", lastTaskName, fromSite);
 					find = true;
 				}
 			}
 			
-			// 4. TODO: 查找服务器最后一次报过来的任务
+			// 4. TODO: 查找服务器最后一次上报的任务
 			int tryTimes = 5;
 			while(!find && tryTimes > 0){
 				AGVStatus lastAgvStatus = AGVClient.agvCacheClient.get(AGVClient.ONE_AVG_ID);
@@ -216,12 +216,12 @@ public class MainLauncher {
 			
 			// 5. 此时认为车子在待命区(1)
 			if(!find){
-				log.info("无法分析获取任务的起始点，设置起始站点：00");
+				log.info("无法分析任务的起始点，设置起始点为待命点：00");
 				fromSite = "00";
 			}
 			
 			// 6. 10,20,30,40,50结尾的都以60开头
-			fromSite = AGVClient.updateFromSite(fromSite);
+			// fromSite = AGVClient.updateFromSite(fromSite);
 			
 			// 推算出任务名
 			String _thisTask = prefix + fromSite + targetSite;
@@ -234,7 +234,7 @@ public class MainLauncher {
 			if(ongoingTask == null){
 				Task nextTask = taskService.findNext();
 				// 数据库保证至少有一个待办任务，有可能是刚添加的，也有可能是后来添加的
-				log.infof("立即发送添加的任务：%s", nextTask.getName());
+				log.infof("未发现进行中的任务，所以发送待办任务：%s", nextTask.getName());
 				Result r = messageClient.send(nextTask.getName());
 				if(r.getCode() == 0) {
 					nextTask.setStatus(Task.TASK_IN_PROCESS);

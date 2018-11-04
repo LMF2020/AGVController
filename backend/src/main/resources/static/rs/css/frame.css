@@ -2,32 +2,37 @@ body .layer-unvisiable {
 	background: none;
 	box-shadow: none;
 }
-body .layui-table-body{
-	overflow-x: hidden;	
-}
-.full {
-	background-color: #dc3545!important;
-	color: white;
-}
-.content-wrap{
-	width: 100vw;
-	height:100vh;
-}
-.menu-wrap{
-	width:300px;
+
+body .layui-table-body {
+	overflow-x: hidden;
 }
 
-.show-layout{
-	border:1px solid #f00
+.full {
+	background-color: #dc3545 !important;
+	color: white;
 }
-.padding{
+
+.content-wrap {
+	width: 100vw;
+	height: 100vh;
+}
+
+.menu-wrap {
+	width: 300px;
+}
+
+.show-layout {
+	border: 1px solid #f00
+}
+
+.padding {
 	padding-top: 20px;
 	padding-bottom: 20px;
 }
 
 .docker {
 	text-align: center;
-	height:100%;
+	height: 100%;
 }
 
 .docker span {
@@ -35,7 +40,42 @@ body .layui-table-body{
 	color: darkblue;
 }
 
-.mb-15{
+.mb-15 {
 	margin-bottom: 15px
 }
 
+.demoSpan1 {
+	border-radius: 50px;
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border: 4px solid #333;
+	width: 25px;
+	height: 25px;
+}
+
+.demoSpan1:before, .demoSpan1:after {
+	content: '';
+	height: 4px; width : 16px;
+	display: block;
+	background: #333;
+	border-radius: 10px;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	position: absolute;
+	top: 9.5px;
+	left: 4px;
+	transform: rotate(-45deg);
+	-webkit-transform: rotate(-45deg);
+	-moz-transform: rotate(-45deg);
+	-o-transform: rotate(-45deg);
+	-ms-transform: rotate(-45deg);
+	width: 16px;
+}
+
+.demoSpan1:after {
+	transform: rotate(45deg);
+	-webkit-transform: rotate(45deg);
+	-moz-transform: rotate(45deg);
+	-o-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+}

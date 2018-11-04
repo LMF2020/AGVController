@@ -164,11 +164,10 @@ public class MessageClient {
 			return Result.error("服务器连接中断");
 		}
 
-		// 任务没结束不能发送新任务
 		AGVStatus status = AGVStatusCacheClient.getInstance().get(AGVClient.ONE_AVG_ID);
 		if(!status.isFinished()) {
-			log.errorf("无法发送新任务，有任务进行中：%s ", status.getTaskName());
-			return Result.error("无法发送新任务，有任务进行中：%s" + status.getTaskName() + "，设备电量：" + status.getBattery());
+			log.errorf("尚有进行中的任务，无法发送新任务：%s ", status.getTaskName());
+			return Result.error("尚有进行中的任务，无法发送新任务：%s" + status.getTaskName() + "，设备电量剩余：" + status.getBattery());
 		}
 
 		MessagePacket packet = new MessagePacket();

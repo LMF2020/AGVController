@@ -9,10 +9,15 @@ public class MainLauncherTest {
 //		AGVStatus.ofme(respCode);
 		
 		
-		String r = "SS100.xml";
-		boolean re = AGVClient.isTaskValid(r);
-		System.out.println(re);
+//		String r = "SS100.xml";
+//		boolean re = AGVClient.isTaskValid(r);
+//		System.out.println(re);
 		
 		
+		//System.out.println(String.valueOf("F1145".charAt(0)));
+		String fromSite = "T231567";
+		int len = fromSite.length();
+		String target = fromSite.substring(len -2);
+		System.out.println(target);
 	}
 }

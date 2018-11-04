@@ -111,26 +111,20 @@ public class AGVClient {
 	 * 获取回待命区的指令 
 	 */
 	// for example : Z3221
-	public static String getCmdFromSiteToBackSite(String fromSite){
-		StringBuilder cmd = new StringBuilder();
+	public static String getBackSite(String fromSite){
 		// 定子转子回待命区 SXX00, 返仓回待命区 S6070, 充电回待命区S7170
 		fromSite = fromSite.replace(".xml", "").trim();
-		// 截取后两位 :21
+		// 截取末尾两位，判断是几号仓
 		String target = fromSite.substring(fromSite.length() - 2);
-		// 充电返仓
-		if(target.equals(CHARGE_NUM)){
-			return "S7170";
+		// 123456号仓回到00
+		String route = target.substring(0, 1);
+		if("123456".contains(route)){
+			return "S" + target + "0000";
 		}
-		// 截取后一位:1
-		String type = target.substring(target.length() - 1);
-		// 如果是定子，转子
-		if(type.equals(DZ_NUM) || type.equals(ZZ_NUM)){
-			cmd.append("S").append(target).append("00");
-		}else if(type.equals(FC_NUM)){
-			// 如果是返仓
-			cmd.append("S6070");
+		if("78".contains(route)){
+			return "S" + target + "0080";
 		}
-		return cmd.toString();
+		return route;
 	}
 	
 	/**
@@ -139,34 +133,7 @@ public class AGVClient {
 	public static String getFromSiteToChargeSite(String fromSite){
 		fromSite = fromSite.replace(".xml", "").trim().substring(fromSite.length() -2);
 		// fix: 新增充电任务的时候有可能需要改变起始站点
-		fromSite = updateFromSite(fromSite);
-		return "O" + fromSite + "71";
-	}
-	
-	/**
-	 * 根据类型获取前缀
-	 */
-	public static String getPrefixByType(String type){
-		if(type.equals(DZ_NUM)){
-			return DZ_FLAG;
-		}
-		if(type.equals(ZZ_NUM)){
-			return ZZ_FLAG;
-		}
-		if(type.equals(FC_NUM)){
-			return FC_FLAG;
-		}
-		return null;
-	}
-	
-	/**
-	 * 满足以下条件，改变待办任务的起始点：10,20,30,40,50结尾的都以60开头
-	 */
-	public static String updateFromSite(String fromSite) {
-		if(NEED_CHANGED_FROM_SITE.contains(fromSite)) {
-			fromSite = "60";
-		}
-		return fromSite;
+		return "O" + fromSite + "0081";
 	}
 	
 	// 判断发送的任务是否有效
@@ -177,7 +144,7 @@ public class AGVClient {
 		if(taskName.equals(NO_TASK)) {
 			return false;
 		}
-		if(taskName.replace(".xml", "").trim().length() != 5) {
+		if(taskName.replace(".xml", "").trim().length() != 7) {
 			return false;
 		}
 		

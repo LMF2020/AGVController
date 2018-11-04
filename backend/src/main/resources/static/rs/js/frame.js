@@ -29,31 +29,151 @@ layui.use(['layer', 'tasklist'], function() {
 	
 	var myChart = null;
 	
-	initPage()
+	// 初始化
+	$('#startRoute').val('1');
+	$('#startRouteSeat').children().show();
+	$('#endRoute').children().show();
+	$('#endRouteSeat').children().show();
+	
+	$('#startRouteSeat').find('option:contains(0)').hide();
+	$('#startRouteSeat').val('1');
+	
+	$('#endRoute').find('option:contains(1)').hide();
+	$('#endRoute').find('option:contains(2)').hide();
+	$('#endRoute').find('option:contains(3)').hide();
+	$('#endRoute').find('option:contains(4)').hide();
+	$('#endRoute').find('option:contains(5)').hide();
+	$('#endRoute').find('option:contains(6)').hide();
+    $('#endRoute').val('7');
+    
+    $('#endRouteSeat').find('option:contains(0)').hide();
+	$('#endRouteSeat').val('1');
+	
+	
+	var route_1_5 = ["1","2","3","4","5"];
+	$('#startRoute').change(function(){ 
+		var sel = $(this).children('option:selected').val();
+		if($.inArray(sel, route_1_5) != -1)
+		{
+			$('#startRouteSeat').children().show();
+			$('#endRoute').children().show();
+			$('#endRouteSeat').children().show();
+			
+			$('#startRouteSeat').find('option:contains(0)').hide();
+			$('#startRouteSeat').val('1');
+			
+			$('#endRoute').find('option:contains(1)').hide();
+			$('#endRoute').find('option:contains(2)').hide();
+			$('#endRoute').find('option:contains(3)').hide();
+			$('#endRoute').find('option:contains(4)').hide();
+			$('#endRoute').find('option:contains(5)').hide();
+			$('#endRoute').find('option:contains(6)').hide();
+		    $('#endRoute').val('7');
+		    
+		    $('#endRouteSeat').find('option:contains(0)').hide();
+			$('#endRouteSeat').val('1');
 
-		// 添加任务
-		$("#add_task").click(function() {
-			COMJS.confirm('您确认要添加任务吗?', function() {
-				var site = $('#position').val()
-				var catalog = $('#catalog').val()
-				var params = site + "/" + catalog;
-				sendCommand(CREATE_TASK, params)
-			})
-		})
+		}else if(sel == '6'){
+			$('#startRouteSeat').children().show();
+			$('#endRoute').children().show();
+			$('#endRouteSeat').children().show();
+			
+			$('#startRouteSeat').find('option:contains(0)').hide();
+			$('#startRouteSeat').val('1');
+			
+			$('#endRoute').find('option:contains(1)').hide();
+			$('#endRoute').find('option:contains(2)').hide();
+			$('#endRoute').find('option:contains(3)').hide();
+			$('#endRoute').find('option:contains(4)').hide();
+			$('#endRoute').find('option:contains(5)').hide();
+			$('#endRoute').find('option:contains(6)').hide();
+		    $('#endRoute').val('7');
+		    
+		    $('#endRouteSeat').find('option:contains(1)').hide();
+		    $('#endRouteSeat').find('option:contains(2)').hide();
+			$('#endRouteSeat').val('0');
+
+		}else if(sel == '7'){
+			$('#startRouteSeat').children().show();
+			$('#endRoute').children().show();
+			$('#endRouteSeat').children().show();
+			
+			$('#startRouteSeat').val('1');
+			
+			$('#endRoute').find('option:contains(6)').hide();
+			$('#endRoute').find('option:contains(7)').hide();
+			$('#endRoute').val('1');
+			
+			$('#endRouteSeat').find('option:contains(0)').hide();
+			$('#endRouteSeat').val('1');
+		}
+	}); 
+	
+	$('#startRouteSeat').change(function(){ 
+		var sel = $(this).children('option:selected').val();
+		var startVal = $('#startRoute').children('option:selected').val();
+		if(startVal == '7'){ // 前提是起始线路是7号仓
+			$('#endRoute').children().show();
+			$('#endRouteSeat').children().show();
+			if(sel == '0'){
+				$('#endRoute').find('option:contains(1)').hide();
+				$('#endRoute').find('option:contains(2)').hide();
+				$('#endRoute').find('option:contains(3)').hide();
+				$('#endRoute').find('option:contains(4)').hide();
+				$('#endRoute').find('option:contains(5)').hide();
+				$('#endRoute').find('option:contains(7)').hide();
+			    $('#endRoute').val('6');
+				
+				$('#endRouteSeat').find('option:contains(0)').hide();
+				$('#endRouteSeat').val('1');
+			    
+			} else if(sel == '1' || sel == '2'){
+				$('#endRoute').find('option:contains(6)').hide();
+				$('#endRoute').find('option:contains(7)').hide();
+				$('#endRoute').val('1');
+				
+				$('#endRouteSeat').find('option:contains(0)').hide();
+				$('#endRouteSeat').val('1');
+			}
+		}
+	});
+	
+	// 添加"发货"任务
+	$("#btn_add_task").click(function() {
 		
-		// 重置任务
-		$("#clear_task").click(function() {
-			COMJS.confirm('确认重置任务？重置后车子将会自动返回待命区', function() {
-				sendCommand(CLEAR_TASK)
-			})
+		var from = $('#startRoute').val() + $('#startRouteSeat').val();
+		var to = $('#endRoute').val() + $('#endRouteSeat').val();
+		var name = 'T' + from + to;
+		COMJS.confirm('您确认要添加任务:' + name + '吗?', function() {
+			sendCommand(CREATE_TASK, name)
 		})
+	});
+	
+	// 添加"返仓"任务
+	$("#btn_ret_task").click(function() {
+		
+		var from = $('#startRoute').val() + $('#startRouteSeat').val();
+		var to = $('#endRoute').val() + $('#endRouteSeat').val();
+		var name = 'F' + from + to;
+		COMJS.confirm('您确认要添加任务:' + name + '吗?', function() {
+			sendCommand(CREATE_TASK, name)
+		})
+	});
+	
+	// 清空待办任务
+	$("#clear_todo_task").click(function() {
+		COMJS.confirm('确认清空列表待办任务吗？', function() {
+			sendCommand(CLEAR_TODO_TASK)
+		})
+	});
 
-		// 清空待办任务
-		$("#clear_todo_task").click(function() {
-			COMJS.confirm('确认清空所有待办任务吗？', function() {
-				sendCommand(CLEAR_TODO_TASK)
-			})
-		})
+//		// 重置任务
+//		$("#clear_task").click(function() {
+//			COMJS.confirm('确认重置任务？重置后车子将会自动返回待命区', function() {
+//				sendCommand(CLEAR_TASK)
+//			})
+//		})
+
 
 //		// 结束任务
 //		$("#end_task").click(function() {
@@ -68,10 +188,12 @@ layui.use(['layer', 'tasklist'], function() {
 //			})
 //		})
 
-	var sendCommand = function(flag, params) {
+	drawMaps()
+	
+	var sendCommand = function(flag, taskName) {
 		var cmd = '';
 		if(flag === CREATE_TASK) {
-			cmd = "/task/add/" + params
+			cmd = "/task/add/" + taskName
 		} else if(flag === CLEAR_TODO_TASK){
 			cmd = "/task/clearTodo";
 		} else if(flag === CLEAR_TASK) {
@@ -83,7 +205,7 @@ layui.use(['layer', 'tasklist'], function() {
 		}
 		
 		if(!cmd){
-			COMJS.error("没有执行任务");
+			COMJS.error("没有可执行任务");
 			return;
 		}
 		$.ajax({
@@ -156,12 +278,12 @@ layui.use(['layer', 'tasklist'], function() {
 	connect()
 
 	// 页面初始化
-	function initPage() {
+	function drawMaps() {
 
 		// 初始化echarts实例
 		myChart = echarts.init(document.getElementById('mainChart'));
 		// 使用刚指定的配置项和数据显示图表。
-		myChart.setOption(chartOptions(-40100, -7330, 100, 0));
+		myChart.setOption(chartOptions(-40500, -7285, 100, 0));
 
 //		function getAngle(x1, y1, x2, y2) {
 //			var x = Math.abs(x1 - x2);

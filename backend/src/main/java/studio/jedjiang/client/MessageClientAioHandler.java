@@ -120,7 +120,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			// 如果是充电任务:
 			// 1. 如果电量达到99%，结束任务
 			// 2. 如果电量达到40%并且有待办任务，结束任务
-			if (taskStatus.getTaskName().replace(".xml", "").trim().endsWith("71")) {
+			if (taskStatus.getTaskName().replace(".xml", "").trim().endsWith("81")) {
 				
 				// 3. 充电任务不会上报结束状态，结束状态只代表站点->充电桩任务结束
 				if(taskStatus.isFinished()){
@@ -132,10 +132,10 @@ public class MessageClientAioHandler implements ClientAioHandler {
 				boolean isChargeReadyToAcceptTask = (battery >= AGVClient.CHARGE_RECOVER_MIN_VAL) && AGVClient.hasNextTask;
 				if (isChargeFull || isChargeReadyToAcceptTask) {
 					if (isChargeFull) {
-						log.infof("电量已充满,当前电量：%d,饱和电量：%d", battery, AGVClient.CHARGE_FULL_MAX_VAL);
+						log.infof("电已充满，当前电量：%d，目标电量：%d", battery, AGVClient.CHARGE_FULL_MAX_VAL);
 					}
 					if (isChargeReadyToAcceptTask) {
-						log.infof("电量已达标，将继续执行待办任务，当前电量：%d,任务达标电量：%d", battery, AGVClient.CHARGE_RECOVER_MIN_VAL);
+						log.infof("电已达标，可继续接任务，当前电量：%d，目标电量：%d", battery, AGVClient.CHARGE_RECOVER_MIN_VAL);
 					}
 					taskStatus.setFinished(true);
 				}
@@ -184,7 +184,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 				// 然后取下一条待办任务
 				Task waitingTask = taskService.findNext();
 				if (waitingTask != null) {
-					handleWaitingTask(waitingTask);
+					handleTodoTask(waitingTask);
 				} else {
 					// 如果没有可执行的任务，回待命区
 					// 条件：判断任务是否在待命区
@@ -196,7 +196,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			// 任务完成后，且没有下个任务，当电量低于临界值，就去充电
 			String finishedTaskName = taskStatus.getTaskName().replace(".xml", "").trim();
 			// 是否在待命区
-			boolean isStartSite = finishedTaskName.endsWith("00") || finishedTaskName.endsWith("70");
+			boolean isStartSite = finishedTaskName.endsWith("00") || finishedTaskName.endsWith("80");
 			// 电量是否低于临界值
 			boolean isLowBettery = taskStatus.getBattery() < AGVClient.CHARGE_LOWER_MIN_VAL;
 			log.infof("已完成任务:%s, 是否在待命区:" + isStartSite + ",是否需要充电:" + isLowBettery + ", 设备电量：%d, 低电量临界值：%d", finishedTaskName, taskStatus.getBattery(), AGVClient.CHARGE_LOWER_MIN_VAL);
@@ -209,10 +209,10 @@ public class MessageClientAioHandler implements ClientAioHandler {
 		}
 	}
 	
-	private void handleWaitingTask(Task waitingTask) throws Exception {
+	private void handleTodoTask(Task waitingTask) throws Exception {
 		// 然后取下一条待办任务
 		if (waitingTask != null) {
-			log.infof("正在发送...待办任务：%s", waitingTask.getName());
+			log.infof("发送待办任务：%s", waitingTask.getName());
 			// 如果待办任务存在, 则发送任务
 			Result r = messageClient.send(waitingTask.getName());
 			if(r.getCode() == 0) {
@@ -226,7 +226,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 	private void handleChargeTask(String chargeTask, int betteryLeft) throws Exception{
 		// 1，新增充电任务
 		taskService.addByStatus(chargeTask, Task.TASK_IN_PROCESS);
-		log.infof("正在发送...充电任务:%s, 当前电量:%d", chargeTask, betteryLeft);
+		log.infof("发送充电任务:%s, 当前电量:%d", chargeTask, betteryLeft);
 		// 2，发送新增的充电任务
 		Result r = messageClient.send(chargeTask);
 		if(r.getCode() == 0) {
@@ -240,27 +240,27 @@ public class MessageClientAioHandler implements ClientAioHandler {
 	// 没有任务自动回待命区
 	private void autoReturnBack(String taskName) {
 
-		// 如果没有可执行的任务，回待命区
-		
 		// 判断任务是否在待命区
 		String finishedTaskName = taskName.replace(".xml", "").trim();
-		if(finishedTaskName.endsWith("00") || finishedTaskName.endsWith("70") || taskName.equals(AGVClient.NO_TASK)){
+		if(finishedTaskName.endsWith("00") || finishedTaskName.endsWith("80") || taskName.equals(AGVClient.NO_TASK)){
 			// \\\\\如果在待命区， 则返回，不做处理
 			return;
 		}
 		
-		// 如果不在待命区, 则回待命区（定子→待命区，转子→待命区，充电 → 待命区）
-		String startSiteTask= AGVClient.getCmdFromSiteToBackSite(finishedTaskName);
-		log.infof("正在发送...待命区任务:%s", startSiteTask);
-		Result r = messageClient.send(startSiteTask);
+		// 无待办任务自动回到待命区
+		String autoBackTask = AGVClient.getBackSite(finishedTaskName);
+		Result r = messageClient.send(autoBackTask);
 		try {
-			if(r.getCode() == 0) {
-				taskService.addByStatus(startSiteTask,Task.TASK_IN_PROCESS);
+			if (r.getCode() == 0) {
+				log.infof("无待办任务，自动回到待命区任务发送成功:%s", autoBackTask);
+				taskService.addByStatus(autoBackTask, Task.TASK_IN_PROCESS);
 				ThreadUtil.safeSleep(TimeUnit.SECONDS.toMillis(1));
+			} else {
+				log.errorf("无待办任务，自动回待命区任务发送失败: %s", autoBackTask);
 			}
 		} catch (Exception e) {
 			// e.printStackTrace();
-			log.errorf("发生错误：没有任务了, 自动回待命区, 前一次任务 : %s", taskName);
+			log.errorf("无待办任务，自动回待命区任务发送失败, 上次任务 : %s", autoBackTask);
 		}
 	
 	}
