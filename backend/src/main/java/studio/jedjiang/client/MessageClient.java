@@ -98,7 +98,31 @@ public class MessageClient {
 	}
 	
 	/**
-	 * 恢复执行任务
+	 * 暂停任务
+	 * 
+	 * @param message
+	 * @return
+	 */
+	public synchronized Result pause() {
+		String message = AGVClient.createPauseCommad();
+		if (clientChannelContext == null || clientChannelContext.isClosed) {
+			log.error("正在恢复命令：但服务器尚未连接成功");
+			return Result.error("服务器连接失败");
+		}
+
+		MessagePacket packet = new MessagePacket();
+		try {
+			packet.setBody(message.getBytes(MessagePacket.CHARSET));
+		} catch (UnsupportedEncodingException e) {
+			return Result.error("恢复命令发送失败：" + e.getMessage());
+		}
+		Tio.send(clientChannelContext, packet);
+		log.info("正在发送命令：" + message);
+		return Result.success("恢复命令发送成功!");
+	}
+	
+	/**
+	 * 恢复任务
 	 * 
 	 * @param message
 	 * @return
@@ -120,7 +144,7 @@ public class MessageClient {
 		log.info("正在发送命令：" + message);
 		return Result.success("恢复命令发送成功!");
 	}
-
+	
 	/**
 	 * 结束任务
 	 * 
@@ -141,7 +165,7 @@ public class MessageClient {
 			return Result.error("结束命令发送失败：" + e.getMessage());
 		}
 		Tio.send(clientChannelContext, packet);
-		log.info("正在结束命令：：" + message);
+		log.info("结束任务：：" + message);
 		return Result.success("结束命令发送成功!");
 	}
 

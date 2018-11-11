@@ -199,7 +199,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			boolean isStartSite = finishedTaskName.endsWith("00") || finishedTaskName.endsWith("80");
 			// 电量是否低于临界值
 			boolean isLowBettery = taskStatus.getBattery() < AGVClient.CHARGE_LOWER_MIN_VAL;
-			log.infof("已完成任务:%s, 是否在待命区:" + isStartSite + ",是否需要充电:" + isLowBettery + ", 设备电量：%d, 低电量临界值：%d", finishedTaskName, taskStatus.getBattery(), AGVClient.CHARGE_LOWER_MIN_VAL);
+			// log.infof("已完成任务:%s, 是否在待命区:" + isStartSite + ",是否需要充电:" + isLowBettery + ", 设备电量：%d, 低电量临界值：%d", finishedTaskName, taskStatus.getBattery(), AGVClient.CHARGE_LOWER_MIN_VAL);
 			if(!AGVClient.hasNextTask && isStartSite && isLowBettery){
 				// 可以安排去充电了
 				log.infof("设备在待命区，电量低于临界值，准备发送充电任务，当前任务:%s", taskStatus.getTaskName());

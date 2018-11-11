@@ -13,12 +13,16 @@ layui.use(['layer', 'tasklist'], function() {
 	var CREATE_TASK = 0;
 	// 结束任务
 	var END_TASK = 1;
+	// 暂停任务
+	var PAUSE_TASK = 2
 	// 恢复任务
-	var RECOVER_TASK = 2;
+	var RECOVER_TASK = 3;
 	// 重置任务
-	var CLEAR_TASK = 3;
+	var CLEAR_TASK = 4;
 	// 清空待办任务
-	var CLEAR_TODO_TASK = 4;
+	var CLEAR_TODO_TASK = 5;
+	// 手工任务
+	var MANUAL_TASK = 6;
 	
 	// 任务列表
 	try{
@@ -49,6 +53,10 @@ layui.use(['layer', 'tasklist'], function() {
     $('#endRouteSeat').find('option:contains(0)').hide();
 	$('#endRouteSeat').val('1');
 	
+	// show goods-return back button
+	$('#btn_goodsRetBack').show();
+	$('#btn_goodsDelivery').hide();
+	
 	
 	var route_1_5 = ["1","2","3","4","5"];
 	$('#startRoute').change(function(){ 
@@ -60,6 +68,7 @@ layui.use(['layer', 'tasklist'], function() {
 			$('#endRouteSeat').children().show();
 			
 			$('#startRouteSeat').find('option:contains(0)').hide();
+			$('#startRouteSeat').find('option:contains(2)').hide();
 			$('#startRouteSeat').val('1');
 			
 			$('#endRoute').find('option:contains(1)').hide();
@@ -72,6 +81,12 @@ layui.use(['layer', 'tasklist'], function() {
 		    
 		    $('#endRouteSeat').find('option:contains(0)').hide();
 			$('#endRouteSeat').val('1');
+			
+			
+			
+			// show goods-return back button
+			$('#btn_goodsRetBack').show();
+			$('#btn_goodsDelivery').hide();
 
 		}else if(sel == '6'){
 			$('#startRouteSeat').children().show();
@@ -79,6 +94,7 @@ layui.use(['layer', 'tasklist'], function() {
 			$('#endRouteSeat').children().show();
 			
 			$('#startRouteSeat').find('option:contains(0)').hide();
+			$('#startRouteSeat').find('option:contains(2)').hide();
 			$('#startRouteSeat').val('1');
 			
 			$('#endRoute').find('option:contains(1)').hide();
@@ -92,6 +108,13 @@ layui.use(['layer', 'tasklist'], function() {
 		    $('#endRouteSeat').find('option:contains(1)').hide();
 		    $('#endRouteSeat').find('option:contains(2)').hide();
 			$('#endRouteSeat').val('0');
+			
+			// disable seat#2
+			
+			
+			// show goods-return back button
+			$('#btn_goodsRetBack').show();
+			$('#btn_goodsDelivery').hide();
 
 		}else if(sel == '7'){
 			$('#startRouteSeat').children().show();
@@ -106,6 +129,10 @@ layui.use(['layer', 'tasklist'], function() {
 			
 			$('#endRouteSeat').find('option:contains(0)').hide();
 			$('#endRouteSeat').val('1');
+			
+			// show goods-delivery button
+			$('#btn_goodsRetBack').hide();
+			$('#btn_goodsDelivery').show();
 		}
 	}); 
 	
@@ -167,26 +194,44 @@ layui.use(['layer', 'tasklist'], function() {
 		})
 	});
 
-//		// 重置任务
-//		$("#clear_task").click(function() {
-//			COMJS.confirm('确认重置任务？重置后车子将会自动返回待命区', function() {
-//				sendCommand(CLEAR_TASK)
-//			})
-//		})
+	// 清空列表任务
+	$("#clear_task").click(function() {
+		COMJS.confirm('确认清空列表任务？操作后车子将会自动返回待命区', function() {
+			sendCommand(CLEAR_TASK)
+		})
+	})
 
-
-//		// 结束任务
-//		$("#end_task").click(function() {
-//			COMJS.confirm('您确认要结束任务吗? 结束前请确保有任务在执行', function() {
-//				sendCommand(END_TASK)
-//			})
-//		})
-//		// 恢复任务
-//		$("#rec_task").click(function() {
-//			COMJS.confirm('您确认要恢复任务吗?', function() {
-//				sendCommand(RECOVER_TASK)
-//			})
-//		})
+	// 结束任务
+	$("#end_ongoing_task").click(function() {
+		COMJS.confirm('您确认要结束进行中的任务吗?', function() {
+			sendCommand(END_TASK)
+		})
+	})
+		
+	// 手工任务
+	$("#btn_manualTask").click(function(e) {
+		e.preventDefault()
+		var manualTask = $('#manualTask').val();
+		if(manualTask){
+			COMJS.confirm('您确认要提交手工任务('+ manualTask +')吗?', function() {
+				sendCommand(MANUAL_TASK, manualTask)
+			})
+		}
+	})
+	
+	// 暂停任务
+	$("#pause_task").click(function() {
+		COMJS.confirm('您确认要暂停任务吗?', function() {
+			sendCommand(PAUSE_TASK)
+		})
+	})
+	
+	// 恢复任务
+	$("#rec_task").click(function() {
+		COMJS.confirm('您确认要恢复任务吗?', function() {
+			sendCommand(RECOVER_TASK)
+		})
+	})
 
 	drawMaps()
 	
@@ -202,6 +247,10 @@ layui.use(['layer', 'tasklist'], function() {
 			cmd = "/cmd/task/end"
 		} else if(flag === RECOVER_TASK){
 			cmd = "/cmd/task/recover"
+		} else if(flag === PAUSE_TASK){
+			cmd = "/cmd/task/pause"
+		} else if(flag == MANUAL_TASK){
+			cmd = "/task/send/manual/" + taskName;
 		}
 		
 		if(!cmd){
@@ -213,9 +262,8 @@ layui.use(['layer', 'tasklist'], function() {
 				url: COMJS.CTX_PATH + cmd
 			})
 			.done(function(resp) {
-				// 处理授权到期
 				if(resp.code == 1002){
-					console.log("授权到期");
+					console.log("License expired");
 					location.replace(location.protocol + "/rs/expired.html");
 				}
 				if(resp.code == 1) {

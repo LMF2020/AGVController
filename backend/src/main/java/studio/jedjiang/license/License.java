@@ -1,7 +1,7 @@
-package studio.jedjiang.license;
-
-public class License {
-	
-	private int endtime;
-	
-}
+//package studio.jedjiang.license;
+//
+//public class License {
+//	
+//	private int endtime;
+//	
+//}

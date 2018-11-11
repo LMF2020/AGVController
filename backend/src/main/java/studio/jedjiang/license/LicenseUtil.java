@@ -102,7 +102,7 @@ public class LicenseUtil {
 	
 	
 	public static void main(String[] args) throws Exception {
-		String licesnedate = "2018-09-15";
+		String licesnedate = "2018-12-25";
 		String encLicense = createLicense(dateFormat.parse(licesnedate));
 		System.out.printf("生成license：%s", encLicense);
 		System.out.println();

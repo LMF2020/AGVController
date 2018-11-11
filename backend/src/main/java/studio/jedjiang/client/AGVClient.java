@@ -16,7 +16,8 @@ public class AGVClient {
 	public static String ONE_AVG_ID = "ONLY_FOR_ONE_AVG";
 
 	public static final String SEND_CMD_PATTERN = "cmd=set task by name;name={CODE}.xml";
-	public static final String END_CMD_PATTERN = "cmd=pause;pauseStat=1";
+	public static final String END_CMD_PATTERN = "cmd=clear task";
+	public static final String PAUSE_CMD_PATTERN = "cmd=pause;pauseStat=1";
 	public static final String REC_CMD_PATTERN = "cmd=pause;pauseStat=0";
 	public static final String DEFAULT_DB_TASK_ID = "AGVUniqueId_dde94b0e9e87f376efd80c30";
 
@@ -71,7 +72,14 @@ public class AGVClient {
 	}
 
 	/**
-	 * 创建恢复执行的命令
+	 * 创建暂停命令
+	 */
+	public static String createPauseCommad() {
+		return PAUSE_CMD_PATTERN;
+	}
+	
+	/**
+	 * 创建恢复命令
 	 */
 	public static String createRecCommad() {
 		return REC_CMD_PATTERN;

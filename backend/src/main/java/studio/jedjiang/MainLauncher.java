@@ -108,6 +108,10 @@ public class MainLauncher {
 	@Ok("json")
 	public Result endCommand() {
 		try {
+			Task ongoingTask = taskService.getOngoingTask();
+			if(ongoingTask == null) {
+				return  Result.error("没有进行中的任务");
+			}
 			return messageClient.end();
 		} catch (Exception e) {
 			return Result.error(e.getMessage());
@@ -125,6 +129,17 @@ public class MainLauncher {
 		}
 	}
 
+	@Filters(@By(type = CrossOriginFilter.class))
+	@At("/cmd/task/pause")
+	@Ok("json")
+	public Result pauseCommand() {
+		try {
+			return messageClient.pause();
+		} catch (Exception e) {
+			return Result.error(e.getMessage());
+		}
+	}
+	
 	// 查询任务列表
 	@Filters(@By(type = CrossOriginFilter.class))
 	@At("/task/list")
@@ -133,6 +148,26 @@ public class MainLauncher {
 		try {
 			List<Task> beanList = taskService.listAll();
 			return Result.success("", beanList);
+		} catch (Exception e) {
+			return Result.error(e.getMessage());
+		}
+	}
+	
+	// 手工任务
+	@Filters({ @By(type = CrossOriginFilter.class), @By(type = LicenseProcessor.class) })
+	@At("/task/send/manual/?")
+	@Ok("json")
+	public Result sendManualTask(String taskName) {
+		try {
+			Task ongoingTask = taskService.getOngoingTask();
+			if (ongoingTask != null) {
+				return Result.error("执行手工任务前，请先结束进行中的任务");
+			}
+			Result r = messageClient.send(taskName);
+			if (r.getCode() == 0) {
+				taskService.addByStatus(taskName, Task.TASK_IN_PROCESS);
+			}
+			return Result.success("手工任务发送成功!");
 		} catch (Exception e) {
 			return Result.error(e.getMessage());
 		}
@@ -164,7 +199,7 @@ public class MainLauncher {
 				String prevTaskName = prevTask.getName();
 				// 后(2)位作为起始点
 				fromSite = prevTaskName.substring(prevTaskName.length() - 2);
-				log.infof("发现有待办任务:%s, 计算起始点:%s", prevTaskName, fromSite);
+				log.infof("发现有待办任务:%s, 设置起始位置:%s", prevTaskName, fromSite);
 				find = true;
 			}
 			
@@ -175,7 +210,7 @@ public class MainLauncher {
 					String lastTaskName = prevTask.getName();
 					// 后(2)位作为起始点
 					fromSite = lastTaskName.substring(lastTaskName.length() - 2);
-					log.infof("发现有进行中的任务:%s, 计算起始点:%s", lastTaskName, fromSite);
+					log.infof("发现有进行中的任务:%s, 设置起始位置:%s", lastTaskName, fromSite);
 					find = true;
 				}
 			}
@@ -187,7 +222,7 @@ public class MainLauncher {
 					String lastTaskName = prevTask.getName();
 					// 后两位就是起始站点
 					fromSite = lastTaskName.substring(lastTaskName.length() - 2);
-					log.infof("发现已完成任务:%s, 计算起始点:%s", lastTaskName, fromSite);
+					log.infof("发现已完成任务:%s, 计算起始位置:%s", lastTaskName, fromSite);
 					find = true;
 				}
 			}
@@ -202,7 +237,7 @@ public class MainLauncher {
 						
 						if(AGVClient.isTaskValid(lastTaskName)) {
 							fromSite = lastTaskName.replace(".xml", "").substring(lastTaskName.length() - 2);
-							log.infof("发现服务器最后一次任务是:%s, 算出起始站点:%s", lastTaskName, fromSite);
+							log.infof("发现服务器最后完成任务是:%s, 设置起始位置:%s", lastTaskName, fromSite);
 							find = true;
 						}
 					}
@@ -216,8 +251,8 @@ public class MainLauncher {
 			
 			// 5. 此时认为车子在待命区(1)
 			if(!find){
-				log.info("无法分析任务的起始点，设置起始点为待命点：00");
-				fromSite = "00";
+				log.info("无法分析任务的起始位置，设置起始位置：80");
+				fromSite = "80";
 			}
 			
 			// 6. 10,20,30,40,50结尾的都以60开头
@@ -253,6 +288,10 @@ public class MainLauncher {
 	@Ok("json")
 	public Result clearTask() {
 		try {
+			Task ongoingTask = taskService.getOngoingTask();
+			if (ongoingTask != null) {
+				return Result.error("请先结束进行中的任务.");
+			}
 			taskService.clearAll();
 			return Result.success();
 		} catch (Exception e) {

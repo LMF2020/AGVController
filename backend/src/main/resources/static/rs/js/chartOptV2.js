@@ -28,7 +28,7 @@ var tcStyle = {
     color:'gray'
   }
 }
-// 号位
+// 号仓
 var hwStyle={
   symbol:'rect',
   symbolSize:[20,90],
@@ -127,7 +127,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '1号位(上)',
+				  name: '1号仓(上)',
 				  value: [-34100,-7285],
 				  ...dzStyle
 				},
@@ -137,7 +137,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '1号位',
+				  name: '1号仓',
 				  value: [-34100,-8745],
 				  ...dzStyle,
 				  label:{
@@ -153,7 +153,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '2号位(上)',
+				  name: '2号仓(上)',
 				  value: [-34100,-15135],
 				  ...dzStyle
 				},
@@ -163,7 +163,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '2号位',
+				  name: '2号仓',
 				  value: [-34100,-16535],
 				  ...dzStyle,
 				  label:{
@@ -179,7 +179,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '3号位(上)',
+				  name: '3号仓(上)',
 				  value: [-34100,-23390],
 				  ...dzStyle
 				},
@@ -189,7 +189,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '3号位',
+				  name: '3号仓',
 				  value: [-34100,-24790],
 				  ...dzStyle,
 				  label:{
@@ -205,7 +205,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '4号位(上)',
+				  name: '4号仓(上)',
 				  value: [-34100,-31475],
 				  ...dzStyle
 				},
@@ -215,7 +215,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '4号位',
+				  name: '4号仓',
 				  value: [-34100,-32875],
 				  ...dzStyle,
 				  label:{
@@ -231,7 +231,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '5号位(上)',
+				  name: '5号仓(上)',
 				  value: [-34100,-39190],
 				  ...dzStyle
 				},
@@ -241,7 +241,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '5号位',
+				  name: '5号仓',
 				  value: [-34100,-40590],
 				  ...dzStyle,
 				  label:{
@@ -257,7 +257,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '6号位(上)',
+				  name: '6号仓(上)',
 				  value: [-46495,-35945],
 				  ...zzStyle
 				},
@@ -267,7 +267,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '6号位',
+				  name: '6号仓',
 				  value: [-46495,-34545],
 				  ...zzStyle,
 				  label:{
@@ -288,7 +288,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '7号位(1)',
+				  name: '7号仓(1)',
 				  value: [16900,71305],
 				  ...zzStyle
 				},
@@ -298,7 +298,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '7号位(2)',
+				  name: '7号仓(2)',
 				  value: [16900,70020],
 				  ...dzStyle
 				},
@@ -308,7 +308,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '7号位',
+				  name: '7号仓',
 				  value: [16900,68610],
 				  ...dzStyle,
 				  label:{
