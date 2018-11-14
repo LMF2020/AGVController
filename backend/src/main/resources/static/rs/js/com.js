@@ -10,6 +10,9 @@ var COMJS = (function() {
 			icon: 3,
 			anim: 0
 		}, function(index) {
+			//$(".layui-layer-btn0").hide();
+			//$(".layui-layer-btn1").hide();
+			
 			if(myfunc && $.isFunction(myfunc)) {
 				myfunc(index)
 			}

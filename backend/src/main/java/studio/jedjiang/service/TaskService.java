@@ -55,7 +55,10 @@ public interface TaskService {
 	// 清空已完成的任务
 	void clearFinished() throws Exception;
 
-	// 选取下一个任务
+	// 选取最后一个待办任务
+	Task findLastTodo() throws Exception;
+	
+	// 选取第一个待办任务
 	Task findNext() throws Exception;
 
 	// 置顶任务

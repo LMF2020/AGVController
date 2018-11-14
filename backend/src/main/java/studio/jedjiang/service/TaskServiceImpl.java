@@ -16,7 +16,6 @@ import org.nutz.trans.Trans;
 import com.google.common.collect.Lists;
 
 import studio.jedjiang.bean.Task;
-import studio.jedjiang.client.AGVClient;
 
 
 @IocBean
@@ -128,6 +127,16 @@ public class TaskServiceImpl implements TaskService {
 		LG.infof("新增任务:(%s).", taskName);
 	}
 
+	
+	@Override
+	public Task findLastTodo() throws Exception {
+		List<Task> todoTaskList = dao.query(Task.class, Cnd.where("status", "=", Task.TASK_TODO).orderBy("ordering", "desc"));
+		if (todoTaskList.size() != 0) {
+			return todoTaskList.get(0);
+		}
+		return null;
+	}
+	
 	/**
 	 * 选择任务
 	 * 

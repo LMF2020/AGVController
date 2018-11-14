@@ -236,6 +236,8 @@ layui.use(['layer', 'tasklist'], function() {
 	drawMaps()
 	
 	var sendCommand = function(flag, taskName) {
+		// 加载层
+		layer.load(2);
 		var cmd = '';
 		if(flag === CREATE_TASK) {
 			cmd = "/task/add/" + taskName
@@ -262,6 +264,7 @@ layui.use(['layer', 'tasklist'], function() {
 				url: COMJS.CTX_PATH + cmd
 			})
 			.done(function(resp) {
+				layer.closeAll();
 				if(resp.code == 1002){
 					console.log("License expired");
 					location.replace(location.protocol + "/rs/expired.html");

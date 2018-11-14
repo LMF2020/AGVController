@@ -48,9 +48,9 @@ body .layui-table-body {
 	border-radius: 50px;
 	-webkit-border-radius: 50px;
 	-moz-border-radius: 50px;
-	border: 4px solid #333;
-	width: 25px;
-	height: 25px;
+	border: 3px solid #333;
+	width: 33px !important;
+	height: 27px !important;
 }
 
 .demoSpan1:before, .demoSpan1:after {

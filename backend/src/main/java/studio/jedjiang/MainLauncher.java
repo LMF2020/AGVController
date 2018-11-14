@@ -194,7 +194,7 @@ public class MainLauncher {
 			String targetSite = taskName.substring(1);
 			boolean find = false;
 			// 1. 查找前一个待办任务
-			Task prevTask = taskService.findNext();
+			Task prevTask = taskService.findLastTodo();
 			if(prevTask != null){
 				String prevTaskName = prevTask.getName();
 				// 后(2)位作为起始点
