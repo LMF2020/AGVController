@@ -137,7 +137,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '1号仓',
+				  name: '1号线',
 				  value: [-34100,-8745],
 				  ...dzStyle,
 				  label:{
@@ -163,7 +163,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '2号仓',
+				  name: '2号线',
 				  value: [-34100,-16535],
 				  ...dzStyle,
 				  label:{
@@ -189,7 +189,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '3号仓',
+				  name: '3号线',
 				  value: [-34100,-24790],
 				  ...dzStyle,
 				  label:{
@@ -215,7 +215,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '4号仓',
+				  name: '4号线',
 				  value: [-34100,-32875],
 				  ...dzStyle,
 				  label:{
@@ -241,7 +241,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '5号仓',
+				  name: '5号线',
 				  value: [-34100,-40590],
 				  ...dzStyle,
 				  label:{
@@ -267,7 +267,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '6号仓',
+				  name: '6号线',
 				  value: [-46495,-34545],
 				  ...zzStyle,
 				  label:{
@@ -341,7 +341,7 @@ var chartOptions = function(x, y, bt, deg){
 		          label: {
 		          show: true,
 		            position:'left',
-		            offset:[-10,-15]
+		            offset:[-10,-65]
 		          },
 		          symbolSize: [40, 40],
 		          symbolRotate: deg,

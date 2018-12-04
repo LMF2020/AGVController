@@ -23,6 +23,8 @@ layui.use(['layer', 'tasklist'], function() {
 	var CLEAR_TODO_TASK = 5;
 	// 手工任务
 	var MANUAL_TASK = 6;
+	// 去充电
+	var CHARGE_TASK = 7;
 	
 	// 任务列表
 	try{
@@ -219,6 +221,14 @@ layui.use(['layer', 'tasklist'], function() {
 		}
 	})
 	
+	// 去充电
+	$("#btn_go_charge").click(function(e) {
+		e.preventDefault()
+		COMJS.confirm('您确认要提交充电任务吗?', function() {
+			sendCommand(CREATE_TASK, "O0081"); // 充电任务
+			})
+	})
+	
 	// 暂停任务
 	$("#pause_task").click(function() {
 		COMJS.confirm('您确认要暂停任务吗?', function() {
@@ -253,7 +263,9 @@ layui.use(['layer', 'tasklist'], function() {
 			cmd = "/cmd/task/pause"
 		} else if(flag == MANUAL_TASK){
 			cmd = "/task/send/manual/" + taskName;
-		}
+		}/* else if(flag === CHARGE_TASK){
+			cmd = "/cmd/task/forceCharge"
+		}*/
 		
 		if(!cmd){
 			COMJS.error("没有可执行任务");

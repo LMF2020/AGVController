@@ -153,6 +153,26 @@ public class MainLauncher {
 		}
 	}
 	
+//	// 去充电
+//	@Filters({ @By(type = CrossOriginFilter.class), @By(type = LicenseProcessor.class) })
+//	@At("/cmd/task/forceCharge")
+//	@Ok("json")
+//	public Result sendForceChargeTask(String taskName) {
+//		try {
+//			Task ongoingTask = taskService.getOngoingTask();
+//			if (ongoingTask != null) {
+//				return Result.error("执行手工任务前，请先结束进行中的任务");
+//			}
+//			Result r = messageClient.send(taskName);
+//			if (r.getCode() == 0) {
+//				taskService.addByStatus(taskName, Task.TASK_IN_PROCESS);
+//			}
+//			return Result.success("充电任务发送成功!");
+//		} catch (Exception e) {
+//			return Result.error(e.getMessage());
+//		}
+//	}
+	
 	// 手工任务
 	@Filters({ @By(type = CrossOriginFilter.class), @By(type = LicenseProcessor.class) })
 	@At("/task/send/manual/?")
