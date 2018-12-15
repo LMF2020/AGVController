@@ -16,6 +16,7 @@ import org.nutz.trans.Trans;
 import com.google.common.collect.Lists;
 
 import studio.jedjiang.bean.Task;
+import studio.jedjiang.client.AGVClient;
 
 
 @IocBean
@@ -32,7 +33,9 @@ public class TaskServiceImpl implements TaskService {
 			throw new Exception("更新任务Id不存在");
 		}
 		dao.updateIgnoreNull(task);
-		LG.info("任务:(" + task.getName() + ")更新成功, 状态为:" + task.getStatus());
+		if (AGVClient.HASLOG) {
+			LG.info("任务:(" + task.getName() + ")更新成功, 状态为:" + task.getStatus());
+		}
 	}
 
 	@Override
@@ -40,7 +43,9 @@ public class TaskServiceImpl implements TaskService {
 		for (String id : taskIds) {
 			dao.delete(Task.class, id);
 		}
-		LG.info("任务:(" + String.join(",", taskIds) + ")已被删除.");
+		if (AGVClient.HASLOG) {
+			LG.info("任务:(" + String.join(",", taskIds) + ")已被删除.");
+		}
 	}
 
 	@Override
@@ -124,7 +129,9 @@ public class TaskServiceImpl implements TaskService {
 		}
 		// 如果任务列表没有任务, 新增的任务序号为默认值200000
 		dao.insert(task);
-		LG.infof("新增任务:(%s).", taskName);
+		if (AGVClient.HASLOG) {
+			LG.infof("新增任务:(%s).", taskName);
+		}
 	}
 
 	
@@ -214,7 +221,9 @@ public class TaskServiceImpl implements TaskService {
 		}
 		// 如果任务列表没有任务, 新增的任务序号为默认值200000
 		dao.insert(task);
-		LG.infof("新增任务:(%s),状态:(%d)", taskName, status);
+		if (AGVClient.HASLOG) {
+			LG.infof("新增任务:(%s),状态:(%d)", taskName, status);
+		}
 		
 	}
 

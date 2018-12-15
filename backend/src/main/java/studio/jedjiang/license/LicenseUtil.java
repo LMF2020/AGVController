@@ -57,7 +57,7 @@ public class LicenseUtil {
 			}
 		}
 
-		log.infof("Expired At: %s", dateFormat.format(new Date(plain_end_date)));
+		log.infof("License expired At: %s", dateFormat.format(new Date(plain_end_date)));
 		
 		boolean expired = checkIfExpired();
 		if(expired) {

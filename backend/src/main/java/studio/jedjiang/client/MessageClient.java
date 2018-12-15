@@ -84,6 +84,7 @@ public class MessageClient {
 		String chargeFullMaxVal = conf.get("charge.full_max_val");
 		String chargeLowerMinVal = conf.get("charge.lower_min_val");
 		String chargeRecoverMinVal = conf.get("charge.recover_min_val");
+		AGVClient.HASLOG = conf.getBoolean("log");
 
 		if (Strings.isNotBlank(chargeFullMaxVal) && Strings.isNumber(chargeFullMaxVal)) {
 			AGVClient.CHARGE_FULL_MAX_VAL = Integer.parseInt(chargeFullMaxVal);
@@ -107,7 +108,9 @@ public class MessageClient {
 	public synchronized Result pause() {
 		String message = AGVClient.createPauseCommad();
 		if (clientChannelContext == null || clientChannelContext.isClosed) {
-			log.error("正在恢复命令：但服务器尚未连接成功");
+			if(AGVClient.HASLOG) {
+				log.error("正在恢复命令：但服务器尚未连接成功");
+			}
 			return Result.error("服务器连接失败");
 		}
 
@@ -118,7 +121,9 @@ public class MessageClient {
 			return Result.error("恢复命令发送失败：" + e.getMessage());
 		}
 		Tio.send(clientChannelContext, packet);
-		log.info("正在发送命令：" + message);
+		if(AGVClient.HASLOG) {
+			log.info("正在发送命令：" + message);
+		}
 		return Result.success("恢复命令发送成功!");
 	}
 	
@@ -131,7 +136,9 @@ public class MessageClient {
 	public synchronized Result recover() {
 		String message = AGVClient.createRecCommad();
 		if (clientChannelContext == null || clientChannelContext.isClosed) {
-			log.error("正在恢复命令：但服务器尚未连接成功");
+			if(AGVClient.HASLOG) {
+				log.error("正在恢复命令：但服务器尚未连接成功");
+			}
 			return Result.error("服务器连接失败");
 		}
 
@@ -142,7 +149,9 @@ public class MessageClient {
 			return Result.error("恢复命令发送失败：" + e.getMessage());
 		}
 		Tio.send(clientChannelContext, packet);
-		log.info("正在发送命令：" + message);
+		if(AGVClient.HASLOG) {
+			log.info("正在发送命令：" + message);
+		}
 		return Result.success("恢复命令发送成功!");
 	}
 	
@@ -155,7 +164,9 @@ public class MessageClient {
 	public synchronized Result end() {
 		String message = AGVClient.createEndCommad();
 		if (clientChannelContext == null || clientChannelContext.isClosed) {
-			log.error("正在结束命令：但服务器尚未连接成功");
+			if(AGVClient.HASLOG) {
+				log.error("正在结束命令：但服务器尚未连接成功");
+			}
 			return Result.error("服务器连接失败");
 		}
 
@@ -166,7 +177,9 @@ public class MessageClient {
 			return Result.error("结束命令发送失败：" + e.getMessage());
 		}
 		Tio.send(clientChannelContext, packet);
-		log.info("结束任务：：" + message);
+		if(AGVClient.HASLOG) {
+			log.info("结束任务：：" + message);
+		}
 		return Result.success("结束命令发送成功!");
 	}
 
@@ -179,19 +192,25 @@ public class MessageClient {
 	public synchronized Result send(String taskName) {
 		
 		if(!AGVClient.isTaskValid(taskName)) {
-			log.errorf("无效任务,放弃发送：%s", taskName);
+			if(AGVClient.HASLOG) {
+				log.errorf("无效任务,放弃发送：%s", taskName);
+			}
 			return Result.error();
 		}
 		
 		taskName = AGVClient.createSendCommad(taskName);
 		if (clientChannelContext == null || clientChannelContext.isClosed) {
-			log.error("无法发送命令，服务器连接中断");
+			if(AGVClient.HASLOG) {
+				log.error("无法发送命令，服务器连接中断");
+			}
 			return Result.error("服务器连接中断");
 		}
 
 		AGVStatus status = AGVStatusCacheClient.getInstance().get(AGVClient.ONE_AVG_ID);
 		if(!status.isFinished()) {
-			log.errorf("尚有进行中的任务，无法发送新任务：%s ", status.getTaskName());
+			if(AGVClient.HASLOG) {
+				log.errorf("尚有进行中的任务，无法发送新任务：%s ", status.getTaskName());
+			}
 			return Result.error("尚有进行中的任务，无法发送新任务：%s" + status.getTaskName() + "，设备电量剩余：" + status.getBattery());
 		}
 
@@ -204,7 +223,9 @@ public class MessageClient {
 		boolean success = Tio.send(clientChannelContext, packet);
 		
 		if(success) {
-			log.info("任务发送成功：" + taskName);
+			if(AGVClient.HASLOG) {
+				log.info("任务发送成功：" + taskName);
+			}
 			return Result.success("任务发送成功");
 		}
 		return Result.error();

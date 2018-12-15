@@ -131,11 +131,13 @@ public class MessageClientAioHandler implements ClientAioHandler {
 				boolean isChargeFull = battery >= AGVClient.CHARGE_FULL_MAX_VAL;
 				boolean isChargeReadyToAcceptTask = (battery >= AGVClient.CHARGE_RECOVER_MIN_VAL) && AGVClient.hasNextTask;
 				if (isChargeFull || isChargeReadyToAcceptTask) {
-					if (isChargeFull) {
-						log.infof("电已充满，当前电量：%d，目标电量：%d", battery, AGVClient.CHARGE_FULL_MAX_VAL);
-					}
-					if (isChargeReadyToAcceptTask) {
-						log.infof("电已达标，可继续接任务，当前电量：%d，目标电量：%d", battery, AGVClient.CHARGE_RECOVER_MIN_VAL);
+					if(AGVClient.HASLOG) {
+						if (isChargeFull) {
+							log.infof("电已充满，当前电量：%d，目标电量：%d", battery, AGVClient.CHARGE_FULL_MAX_VAL);
+						}
+						if (isChargeReadyToAcceptTask) {
+							log.infof("电已达标，可继续接任务，当前电量：%d，目标电量：%d", battery, AGVClient.CHARGE_RECOVER_MIN_VAL);
+						}
 					}
 					taskStatus.setFinished(true);
 				}
@@ -146,7 +148,9 @@ public class MessageClientAioHandler implements ClientAioHandler {
 				// 线程锁并发控制
 				if(lock.tryLock()) {
 					try {
-						log.debugf("任务完成：%s" , agvResponse);
+						if(AGVClient.HASLOG) {
+							log.debugf("任务完成：%s" , agvResponse);
+						}
 						handleFinished(taskStatus);
 					} finally {
 						lock.unlock();
@@ -174,7 +178,9 @@ public class MessageClientAioHandler implements ClientAioHandler {
 				
 				// 电量小于20%需要充电
 				if(taskStatus.getBattery() < AGVClient.CHARGE_LOWER_MIN_VAL){
-					log.infof("当前任务完成:%s，但电量低于临界值，准备发送充电任务", taskStatus.getTaskName());
+					if(AGVClient.HASLOG) {
+						log.infof("当前任务完成:%s，但电量低于临界值，准备发送充电任务", taskStatus.getTaskName());
+					}
 					String chargeTask = AGVClient.getFromSiteToChargeSite(onGoingTask.getName());
 					handleChargeTask(chargeTask, taskStatus.getBattery());
 					// \\\\\充电情况处理完毕，返回
@@ -202,7 +208,9 @@ public class MessageClientAioHandler implements ClientAioHandler {
 			// log.infof("已完成任务:%s, 是否在待命区:" + isStartSite + ",是否需要充电:" + isLowBettery + ", 设备电量：%d, 低电量临界值：%d", finishedTaskName, taskStatus.getBattery(), AGVClient.CHARGE_LOWER_MIN_VAL);
 			if(!AGVClient.hasNextTask && isStartSite && isLowBettery){
 				// 可以安排去充电了
-				log.infof("设备在待命区，电量低于临界值，准备发送充电任务，当前任务:%s", taskStatus.getTaskName());
+				if(AGVClient.HASLOG) {
+					log.infof("设备在待命区，电量低于临界值，准备发送充电任务，当前任务:%s", taskStatus.getTaskName());
+				}
 				String chargeTask = AGVClient.getFromSiteToChargeSite(finishedTaskName);
 				handleChargeTask(chargeTask, taskStatus.getBattery());
 			}
@@ -212,7 +220,9 @@ public class MessageClientAioHandler implements ClientAioHandler {
 	private void handleTodoTask(Task waitingTask) throws Exception {
 		// 然后取下一条待办任务
 		if (waitingTask != null) {
-			log.infof("发送待办任务：%s", waitingTask.getName());
+			if(AGVClient.HASLOG) {
+				log.infof("发送待办任务：%s", waitingTask.getName());
+			}
 			// 如果待办任务存在, 则发送任务
 			Result r = messageClient.send(waitingTask.getName());
 			if(r.getCode() == 0) {
@@ -226,7 +236,9 @@ public class MessageClientAioHandler implements ClientAioHandler {
 	private void handleChargeTask(String chargeTask, int betteryLeft) throws Exception{
 		// 1，新增充电任务
 		taskService.addByStatus(chargeTask, Task.TASK_IN_PROCESS);
-		log.infof("发送充电任务:%s, 当前电量:%d", chargeTask, betteryLeft);
+		if(AGVClient.HASLOG) {
+			log.infof("发送充电任务:%s, 当前电量:%d", chargeTask, betteryLeft);
+		}
 		// 2，发送新增的充电任务
 		Result r = messageClient.send(chargeTask);
 		if(r.getCode() == 0) {
@@ -252,15 +264,21 @@ public class MessageClientAioHandler implements ClientAioHandler {
 		Result r = messageClient.send(autoBackTask);
 		try {
 			if (r.getCode() == 0) {
-				log.infof("无待办任务，自动回到待命区任务发送成功:%s", autoBackTask);
+				if(AGVClient.HASLOG) {
+					log.infof("无待办任务，自动回到待命区任务发送成功:%s", autoBackTask);
+				}
 				taskService.addByStatus(autoBackTask, Task.TASK_IN_PROCESS);
 				ThreadUtil.safeSleep(TimeUnit.SECONDS.toMillis(1));
 			} else {
-				log.errorf("无待办任务，自动回待命区任务发送失败: %s", autoBackTask);
+				if(AGVClient.HASLOG) {
+					log.errorf("无待办任务，自动回待命区任务发送失败: %s", autoBackTask);
+				}
 			}
 		} catch (Exception e) {
 			// e.printStackTrace();
-			log.errorf("无待办任务，自动回待命区任务发送失败, 上次任务 : %s", autoBackTask);
+			if(AGVClient.HASLOG) {
+				log.errorf("无待办任务，自动回待命区任务发送失败, 上次任务 : %s", autoBackTask);
+			}
 		}
 	
 	}

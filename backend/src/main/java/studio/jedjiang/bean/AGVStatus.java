@@ -76,7 +76,7 @@ public class AGVStatus {
 				}
 			} else if (pair_k.equals("task_isfinished")) {
 				me.setFinished("1".equals(pair_v));
-			} else if (pair_k.equals("task_error")) {
+			} else if (pair_k.equals("error")) {
 				me.setError(pair_v);
 			} else if(pair_k.equals("x")) {
 				me.setX(pair_v);

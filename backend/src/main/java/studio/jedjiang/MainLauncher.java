@@ -235,7 +235,9 @@ public class MainLauncher {
 				String prevTaskName = prevTask.getName();
 				// 后(2)位作为起始点
 				fromSite = prevTaskName.substring(prevTaskName.length() - 2);
-				log.infof("发现有待办任务:%s, 设置起始位置:%s", prevTaskName, fromSite);
+				if(AGVClient.HASLOG) {
+					log.infof("发现有待办任务:%s, 设置起始位置:%s", prevTaskName, fromSite);
+				}
 				find = true;
 			}
 			
@@ -246,7 +248,9 @@ public class MainLauncher {
 					String lastTaskName = prevTask.getName();
 					// 后(2)位作为起始点
 					fromSite = lastTaskName.substring(lastTaskName.length() - 2);
-					log.infof("发现有进行中的任务:%s, 设置起始位置:%s", lastTaskName, fromSite);
+					if(AGVClient.HASLOG) {
+						log.infof("发现有进行中的任务:%s, 设置起始位置:%s", lastTaskName, fromSite);
+					}
 					find = true;
 				}
 			}
@@ -258,7 +262,9 @@ public class MainLauncher {
 					String lastTaskName = prevTask.getName();
 					// 后两位就是起始站点
 					fromSite = lastTaskName.substring(lastTaskName.length() - 2);
-					log.infof("发现已完成任务:%s, 计算起始位置:%s", lastTaskName, fromSite);
+					if(AGVClient.HASLOG) {
+						log.infof("发现已完成任务:%s, 计算起始位置:%s", lastTaskName, fromSite);
+					}
 					find = true;
 				}
 			}
@@ -273,12 +279,16 @@ public class MainLauncher {
 						
 						if(AGVClient.isTaskValid(lastTaskName)) {
 							fromSite = lastTaskName.replace(".xml", "").substring(lastTaskName.length() - 2);
-							log.infof("发现服务器最后完成任务是:%s, 设置起始位置:%s", lastTaskName, fromSite);
+							if(AGVClient.HASLOG) {
+								log.infof("发现服务器最后完成任务是:%s, 设置起始位置:%s", lastTaskName, fromSite);
+							}
 							find = true;
 						}
 					}
 				} catch (Exception e) {
-					log.error("无法获取服务器最后一次任务");
+					if(AGVClient.HASLOG) {
+						log.error("无法获取服务器最后一次任务");
+					}
 				} finally {
 					ThreadUtil.safeSleep(500);
 					tryTimes--;
@@ -287,7 +297,9 @@ public class MainLauncher {
 			
 			// 5. 此时认为车子在待命区(1)
 			if(!find){
-				log.info("无法分析任务的起始位置，设置起始位置：80");
+				if(AGVClient.HASLOG) {
+					log.info("无法分析任务的起始位置，设置起始位置：80");
+				}
 				fromSite = "80";
 			}
 			
@@ -305,7 +317,9 @@ public class MainLauncher {
 			if(ongoingTask == null){
 				Task nextTask = taskService.findNext();
 				// 数据库保证至少有一个待办任务，有可能是刚添加的，也有可能是后来添加的
-				log.infof("未发现进行中的任务，所以发送待办任务：%s", nextTask.getName());
+				if(AGVClient.HASLOG) {
+					log.infof("未发现进行中的任务，所以发送待办任务：%s", nextTask.getName());
+				}
 				Result r = messageClient.send(nextTask.getName());
 				if(r.getCode() == 0) {
 					nextTask.setStatus(Task.TASK_IN_PROCESS);

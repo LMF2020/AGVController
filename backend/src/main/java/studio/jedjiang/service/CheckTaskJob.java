@@ -26,7 +26,9 @@ public class CheckTaskJob implements Job {
 			// 定时任务判断当前是否有待办任务
 			AGVClient.hasNextTask = taskService.findNext() != null;
 		} catch (Exception e) {
-			log.error("定时查询待办任务失败");
+			if (AGVClient.HASLOG) {
+				log.error("定时查询待办任务失败");
+			}
 		}
 
 	}

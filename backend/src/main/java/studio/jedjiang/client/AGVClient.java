@@ -34,6 +34,8 @@ public class AGVClient {
 	// 电量高于该值可以继续接任务
 	public static int CHARGE_RECOVER_MIN_VAL = 40;
 	
+	public static boolean HASLOG = false;
+	
 	// 定子，转子，返仓
 	public static final String DZ_NUM = "1";
 	public static final String ZZ_NUM = "2";
@@ -96,7 +98,9 @@ public class AGVClient {
 		try {
 			me = AGVStatus.ofme(agvResponse);
 		} catch (Exception e) {
-			log.error("报文解析出错：ofme() error：" + agvResponse);
+			if(AGVClient.HASLOG) {
+				log.error("报文解析出错：ofme() error：" + agvResponse);
+			}
 			// 报文解析出错，则清空缓存
 			agvCacheClient.put(ONE_AVG_ID, null);
 			// e.printStackTrace();
