@@ -35,6 +35,8 @@ layui.use(['layer', 'tasklist'], function() {
 	
 	var myChart = null;
 	
+	$('#showUpdate').text('正常');
+	
 	// 初始化
 	$('#startRoute').val('1');
 	$('#startRouteSeat').children().show();
@@ -321,8 +323,29 @@ layui.use(['layer', 'tasklist'], function() {
 			// y 坐标
 			var y = agvStatus['y']
 			// 如果有错误, 车子的报错日志
-			// var error = agvStatus['error']
-			console.log("x="+x + ",y=" + y + ",b=" + bt)
+			var err = agvStatus['error']
+			if (err) {
+				switch (err) {
+				case '0x00009':
+					$('#showUpdate').text('前行防撞报警！');
+					break;
+				case '0x0000A':
+					$('#showUpdate').text('后叉防撞报警！');
+					break;
+				case '0x00002':
+					$('#showUpdate').text('车载偏离路径！');
+					break;
+				case '0x020003':
+					$('#showUpdate').text('地图丢失！');
+					break;
+				default:
+					$('#showUpdate').text('正常');
+					break;
+				}
+			} else {
+				$('#showUpdate').text('正常');
+			}
+			// console.log("x="+x + ",y=" + y + ",b=" + bt)
 			myChart.setOption(chartOptions(x, y, bt, 0));
 		};
 		ws.onclose = function(e) {

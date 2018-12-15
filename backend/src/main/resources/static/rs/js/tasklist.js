@@ -10,14 +10,14 @@ layui.define([ 'jquery', 'table' ], function(exports) {
 				elem : '#tasklist',
 				url : COMJS.CTX_PATH + "/task/list",
 				cols : [ [{
-					field : 'name',
-					title : '任务',
-					width : 120
+					field : 'uname',
+					title : '任务'
 				}, {
 					field : 'status',
+					width : 100,
 					title : '状态',
 					templet : function(d) {
-						var text = '待办';
+						var text = '待执行';
 						if (d.status == 1) {
 							text = '进行中';
 						} else if (d.status == 2) {
@@ -27,8 +27,13 @@ layui.define([ 'jquery', 'table' ], function(exports) {
 					}
 				}, {
 					title : '操作',
+					width : 65,
 					align : 'center',
 					toolbar : '#mybar'
+				}, {
+					field : 'name',
+					width : 100,
+					title : '代码'
 				} ] ]
 			});
 

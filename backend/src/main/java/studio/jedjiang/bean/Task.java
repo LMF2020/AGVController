@@ -47,4 +47,7 @@ public class Task extends BaseModel {
 	@Comment("任务顺序")
 	@ColDefine(type = ColType.INT)
 	private Integer ordering = 200000;
+	
+	// 用户任务详细
+	private String uname;
 }

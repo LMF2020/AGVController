@@ -2,6 +2,7 @@ package studio.jedjiang;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 
 import org.nutz.boot.NbApp;
 import org.nutz.dao.Dao;
@@ -10,6 +11,7 @@ import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Encoding;
+import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.annotation.At;
@@ -17,6 +19,8 @@ import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.filter.CrossOriginFilter;
+
+import com.google.common.collect.ImmutableMap;
 
 import cn.hutool.core.thread.ThreadUtil;
 import studio.jedjiang.bean.AGVStatus;
@@ -52,6 +56,16 @@ public class MainLauncher {
 
 	@Inject
 	protected TaskService taskService;
+	
+	Map<String, String> GetTask = ImmutableMap.<String, String>builder().put("T", "叫料任务,").put("F", "返仓任务,")
+			.put("S", "待命任务,").put("O", "充电任务,").build();
+
+	Map<String, String> GetGeo = ImmutableMap.<String, String>builder().put("00", "(00)待命").put("11", "E(1号位)")
+			.put("12", "E(2号位)").put("21", "D(1号位)").put("22", "D(2号位)").put("31", "C(1号位)").put("32", "C(2号位)")
+			.put("41", "B(1号位)").put("42", "B(2号位)").put("51", "A(1号位)").put("52", "A(2号位)").put("61", "机加(1号位)")
+			.put("62", "机加(2号位)").put("70", "仓库(0号位)").put("71", "仓库(1号位)").put("72", "仓库(2号位)").put("80", "(80)待命")
+			.put("81", "充电桩").build();
+	
 
 	public void init() throws Exception {
 		// 环境检查
@@ -147,32 +161,30 @@ public class MainLauncher {
 	public Result listTask() {
 		try {
 			List<Task> beanList = taskService.listAll();
+			
+			convertTaskList(beanList);
+			
 			return Result.success("", beanList);
 		} catch (Exception e) {
 			return Result.error(e.getMessage());
 		}
 	}
 	
-//	// 去充电
-//	@Filters({ @By(type = CrossOriginFilter.class), @By(type = LicenseProcessor.class) })
-//	@At("/cmd/task/forceCharge")
-//	@Ok("json")
-//	public Result sendForceChargeTask(String taskName) {
-//		try {
-//			Task ongoingTask = taskService.getOngoingTask();
-//			if (ongoingTask != null) {
-//				return Result.error("执行手工任务前，请先结束进行中的任务");
-//			}
-//			Result r = messageClient.send(taskName);
-//			if (r.getCode() == 0) {
-//				taskService.addByStatus(taskName, Task.TASK_IN_PROCESS);
-//			}
-//			return Result.success("充电任务发送成功!");
-//		} catch (Exception e) {
-//			return Result.error(e.getMessage());
-//		}
-//	}
-	
+	private void convertTaskList(List<Task> beanList) {
+		for (Task t : beanList) {
+			String name = t.getName();
+			if (Strings.isNotBlank(name)) {
+				// F801172
+				StringBuilder sb = new StringBuilder();
+				String n = name.substring(0, 1);
+				String from = name.substring(1, 3);
+				String to = name.substring(5);
+				String uname = sb.append(GetTask.get(n)).append("从").append(GetGeo.get(from)).append("到").append(GetGeo.get(to)).toString();
+				t.setUname(uname);
+			}
+		}
+	}
+
 	// 手工任务
 	@Filters({ @By(type = CrossOriginFilter.class), @By(type = LicenseProcessor.class) })
 	@At("/task/send/manual/?")

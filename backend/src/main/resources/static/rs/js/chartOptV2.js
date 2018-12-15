@@ -7,7 +7,7 @@ var nodeStyle = {
 // 定子
 var dzStyle = {
   symbol:'rect',
-  symbolSize:[8,8],
+  symbolSize:[20,8],
   itemStyle:{
     color:'#f00'
   }
@@ -15,7 +15,7 @@ var dzStyle = {
 // 转子
 var zzStyle = {
   symbol:'rect',
-  symbolSize:[8,8],
+  symbolSize:[20,8],
   itemStyle:{
     color:'blue'
   }
@@ -23,7 +23,7 @@ var zzStyle = {
 // 退仓
 var tcStyle = {
   symbol:'rect',
-  symbolSize:[8,8],
+  symbolSize:[20,8],
   itemStyle:{
     color:'gray'
   }
@@ -137,7 +137,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '1号线',
+				  name: 'E',
 				  value: [-34100,-8745],
 				  ...dzStyle,
 				  label:{
@@ -163,7 +163,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '2号线',
+				  name: 'D',
 				  value: [-34100,-16535],
 				  ...dzStyle,
 				  label:{
@@ -189,7 +189,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '3号线',
+				  name: 'C',
 				  value: [-34100,-24790],
 				  ...dzStyle,
 				  label:{
@@ -215,7 +215,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '4号线',
+				  name: 'B',
 				  value: [-34100,-32875],
 				  ...dzStyle,
 				  label:{
@@ -241,7 +241,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '5号线',
+				  name: 'A',
 				  value: [-34100,-40590],
 				  ...dzStyle,
 				  label:{
@@ -267,7 +267,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '6号线',
+				  name: '机加',
 				  value: [-46495,-34545],
 				  ...zzStyle,
 				  label:{
@@ -308,7 +308,7 @@ var chartOptions = function(x, y, bt, deg){
 				  ...nodeStyle
 				},
 				{
-				  name: '7号仓',
+				  name: '仓库',
 				  value: [16900,68610],
 				  ...dzStyle,
 				  label:{
