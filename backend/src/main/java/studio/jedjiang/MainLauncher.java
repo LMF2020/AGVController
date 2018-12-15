@@ -177,9 +177,17 @@ public class MainLauncher {
 				// F801172
 				StringBuilder sb = new StringBuilder();
 				String n = name.substring(0, 1);
-				String from = name.substring(1, 3);
+				String from = name.substring(3, 5);
 				String to = name.substring(5);
-				String uname = sb.append(GetTask.get(n)).append("从").append(GetGeo.get(from)).append("到").append(GetGeo.get(to)).toString();
+
+				String fromway = GetGeo.get(from);
+				String toway = GetGeo.get(to);
+
+				if ("F".equals(n)) {
+					fromway = fromway.replaceAll("2", "1");
+				}
+
+				String uname = sb.append(GetTask.get(n)).append("从").append(fromway).append("到").append(toway).toString();
 				t.setUname(uname);
 			}
 		}

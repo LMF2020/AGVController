@@ -277,7 +277,7 @@ public class MessageClientAioHandler implements ClientAioHandler {
 	// 后台消息推送
 	public void messagePush(AGVStatus taskStatus) throws UnsupportedEncodingException {
 		if (taskStatus != null) {
-			WsResponse resp = WsResponse.fromText(Json.toJson(taskStatus), MessagePacket.CHARSET);
+			WsResponse resp = WsResponse.fromText(Json.toJson(Result.success("", taskStatus)), MessagePacket.CHARSET);
 			Tio.sendToAll(wsGroupCtx, resp);
 		}
 	}

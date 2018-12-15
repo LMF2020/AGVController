@@ -311,7 +311,14 @@ layui.use(['layer', 'tasklist'], function() {
 		ws.onmessage = function(e) {
 			// console.log('Message:', e.data);
 			//
-			var agvStatus = JSON.parse(e.data)
+			var re = JSON.parse(e.data);
+			
+			if(re.code == '1'){
+				$('#showUpdate').text('车载未连接，或连接中断');
+				return;
+			}
+			
+			var agvStatus = JSON.parse(re.data)
 			// 当前正在执行任务的名称
 			// var taskName = agvStatus['taskName']
 			// 任务是否结束
