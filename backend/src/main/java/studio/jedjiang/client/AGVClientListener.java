@@ -1,5 +1,7 @@
 package studio.jedjiang.client;
 
+import org.nutz.log.Log;
+import org.nutz.log.Logs;
 import org.tio.client.intf.ClientAioListener;
 import org.tio.core.ChannelContext;
 import org.tio.core.Tio;
@@ -10,8 +12,10 @@ import org.tio.websocket.common.WsResponse;
 
 import studio.jedjiang.bean.Result;
 
-public class AgvClientListener implements ClientAioListener {
+public class AGVClientListener implements ClientAioListener {
 
+	private static final Log log = Logs.get();
+	
 	private ServerGroupContext wsGroupCtx;
 	
 	public void setWsGroupCtx(ServerGroupContext wsGroupCtx) {
@@ -22,6 +26,11 @@ public class AgvClientListener implements ClientAioListener {
 	public void onAfterConnected(ChannelContext channelContext, boolean isConnected, boolean isReconnect)
 			throws Exception {
 		if(!isConnected) {
+			
+			if(AGVClient.HASLOG) {
+				log.info("车载连接失败....");
+			}
+			
 			WsResponse resp = WsResponse.fromText(Json.toJson(Result.error()), MessagePacket.CHARSET);
 			Tio.sendToAll(wsGroupCtx, resp);
 			

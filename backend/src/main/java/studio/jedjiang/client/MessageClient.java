@@ -40,7 +40,7 @@ public class MessageClient {
 	private MessageClientAioHandler messageClientAioHandler;
 
 	// 事件监听器，可以为null，但建议自己实现该接口，可以参考showcase了解些接口
-	private AgvClientListener aioListener = new AgvClientListener();
+	private AGVClientListener aioListener = new AGVClientListener();
 
 
 	// 断链后自动连接的，不想自动连接请设为null
