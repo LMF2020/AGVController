@@ -24,6 +24,18 @@ public class AgvClientListener implements ClientAioListener {
 		if(!isConnected) {
 			WsResponse resp = WsResponse.fromText(Json.toJson(Result.error()), MessagePacket.CHARSET);
 			Tio.sendToAll(wsGroupCtx, resp);
+			
+			// 以下是车载测试数据模拟
+//			AGVStatus taskStatus = new AGVStatus();
+//			taskStatus.setBattery(50);
+//			taskStatus.setError("0x00009");
+//			taskStatus.setTaskName("F801172");
+//			taskStatus.setX("-40500");
+//			taskStatus.setY("-34545");
+//			WsResponse resp = WsResponse.fromText(Json.toJson(Result.success("", taskStatus)), MessagePacket.CHARSET);
+//			Tio.sendToAll(wsGroupCtx, resp);
+			
+			
 		}
 	}
 

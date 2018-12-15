@@ -183,10 +183,6 @@ public class MainLauncher {
 				String fromway = GetGeo.get(from);
 				String toway = GetGeo.get(to);
 
-				if ("F".equals(n)) {
-					fromway = fromway.replaceAll("2", "1");
-				}
-
 				String uname = sb.append(GetTask.get(n)).append("从").append(fromway).append("到").append(toway).toString();
 				t.setUname(uname);
 			}

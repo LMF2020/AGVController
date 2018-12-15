@@ -35,8 +35,6 @@ layui.use(['layer', 'tasklist'], function() {
 	
 	var myChart = null;
 	
-	$('#showUpdate').text('正常');
-	
 	// 初始化
 	$('#startRoute').val('1');
 	$('#startRouteSeat').children().show();
@@ -44,6 +42,7 @@ layui.use(['layer', 'tasklist'], function() {
 	$('#endRouteSeat').children().show();
 	
 	$('#startRouteSeat').find('option:contains(0)').hide();
+	$('#startRouteSeat').find('option:contains(2)').hide();
 	$('#startRouteSeat').val('1');
 	
 	$('#endRoute').find('option:contains(1)').hide();
@@ -318,7 +317,7 @@ layui.use(['layer', 'tasklist'], function() {
 				return;
 			}
 			
-			var agvStatus = JSON.parse(re.data)
+			var agvStatus = re.data;
 			// 当前正在执行任务的名称
 			// var taskName = agvStatus['taskName']
 			// 任务是否结束
@@ -329,6 +328,10 @@ layui.use(['layer', 'tasklist'], function() {
 			var x = agvStatus['x']
 			// y 坐标
 			var y = agvStatus['y']
+			
+			// console.log("x="+x + ",y=" + y + ",b=" + bt)
+			myChart.setOption(chartOptions(x, y, bt, 0));
+			
 			// 如果有错误, 车子的报错日志
 			var err = agvStatus['error']
 			if (err) {
@@ -352,8 +355,6 @@ layui.use(['layer', 'tasklist'], function() {
 			} else {
 				$('#showUpdate').text('正常');
 			}
-			// console.log("x="+x + ",y=" + y + ",b=" + bt)
-			myChart.setOption(chartOptions(x, y, bt, 0));
 		};
 		ws.onclose = function(e) {
 			console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
